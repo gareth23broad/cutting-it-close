@@ -206,12 +206,18 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 #lb-list .st b{color:#e0a300}
 .lb-msg{text-align:center;font-weight:700;color:#1B1C1E99;padding:20px 0}
 .post{display:grid;gap:8px;margin-top:6px}
-.post .nmrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.post .nmrow{display:grid;grid-template-columns:1fr 118px;gap:8px}
 .post input{font:600 16px Inter,system-ui,sans-serif;padding:11px 12px;border-radius:12px;border:2px solid var(--line);background:#fff;color:var(--ink);width:100%;box-sizing:border-box}
 .post .err{margin:0;color:#c8302a;font-weight:700;font-size:14px;min-height:1.2em}
 .post .skip{background:none;border:0;color:#1B1C1E99;font:700 15px Inter,system-ui,sans-serif;padding:6px}
-.fr-row{display:grid;grid-template-columns:1fr auto;gap:10px}
-#fr-share{border:0;border-radius:999px;width:52px;background:#17181Ae0;color:#FFF8F4;display:grid;place-items:center}
+.fr-row{display:grid;grid-template-columns:1fr auto auto;gap:10px}
+#fr-share,#fr-about{border:0;border-radius:999px;width:52px;background:#17181Ae0;color:#FFF8F4;display:grid;place-items:center}
+#about{position:absolute;inset:0;z-index:22;background:#000000b8;display:grid;place-items:center;padding:16px max(12px,env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-right,0px))}
+.ab{grid-template-rows:auto 1fr auto}
+.ab-body{overflow-y:auto;font-size:15px;line-height:1.45}
+.ab-body p{margin:0 0 10px}.ab-body h3{margin:12px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#3d8f2c}
+.ab-small{font-size:12px;color:#1B1C1E99}
+.post .note{margin:0;font-size:13px;font-weight:600;color:#1B1C1E99}
 #fr-copied{margin:0;text-align:center;color:#FFF8F4;font:700 14px Inter,system-ui,sans-serif}
 #fr-board small{background:#4FAA3B;color:#fff;border-radius:999px;padding:3px 8px;font-size:11px;letter-spacing:.04em}
 .screen{position:absolute;inset:0;z-index:5;background:var(--wall);overflow-y:auto;
@@ -333,7 +339,8 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
   <section id="sheet" hidden></section>
   <section id="confirm" hidden><div><h2 id="confirm-h">Start a new game?</h2><p id="confirm-text"></p><button class="go" id="stay">Keep playing</button><button id="leave">Main menu</button></div></section>
   <div id="load"><img id="load-img" alt="Cutting It Close is loading"></div>
-  <section id="front" hidden><canvas id="front-cv"></canvas><div class="fr-btns"><button class="go" id="fr-continue" hidden>CONTINUE</button><button class="go" id="fr-play">PLAY</button><div class="fr-row"><button id="fr-board">LEADERBOARD</button><button id="fr-share" aria-label="Share the game"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M8 10H6.5A1.5 1.5 0 0 0 5 11.5v8A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5H16"/></svg></button></div><p id="fr-copied" hidden>Link copied!</p></div></section>
+  <section id="front" hidden><canvas id="front-cv"></canvas><div class="fr-btns"><button class="go" id="fr-continue" hidden>CONTINUE</button><button class="go" id="fr-play">PLAY</button><div class="fr-row"><button id="fr-board">LEADERBOARD</button><button id="fr-share" aria-label="Share the game"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M8 10H6.5A1.5 1.5 0 0 0 5 11.5v8A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5H16"/></svg></button><button id="fr-about" aria-label="About and privacy"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.4" r=".6" fill="currentColor"/></svg></button></div><p id="fr-copied" hidden>Link copied!</p></div></section>
+  <section id="about" hidden><div class="lb ab"><h2>About</h2><div class="ab-body"><p><b>Cutting It Close</b> is a free game made by Gareth, who you might just find behind the chair at <b>Noggins Organic Salon</b>. It is just for fun: real color, bleach and cutting shears belong in a professional&rsquo;s hands, so please don&rsquo;t try these at home!</p><h3>The team</h3><p>Featuring the Noggins stylists Kez, Tamarah, Amy, Josie, Gareth, Jess, Lily and Jade.</p><h3>The clients</h3><p>Every client in the game is fictional. Any resemblance to real people is coincidental.</p></div><button class="go" id="ab-close">Back</button></div></section>
   <section id="board" hidden><div class="lb"><h2>Leaderboard</h2><p class="lb-sub">Top five-day totals at Noggins</p><ol id="lb-list"></ol><button class="go" id="lb-close">Back</button></div></section>
   <section id="pick" class="screen">
     <h1 class="logo"><img id="title" alt="Cutting It Close"></h1>
@@ -978,11 +985,11 @@ function endDay(){
  const best=+store.get('cc-best')||0,nb=G.tips>best;if(nb)store.set('cc-best',G.tips);
  const all=G.scores.reduce((a,b)=>a+b,0)/Math.max(1,G.scores.length);
  S.innerHTML=`<img class="deco" alt="" src="${URL_.decor_hood_dryer}"><span class="tag">Your ${['','one','two','three','four','five'][DAYS.length]}-day total</span><div class="big">$${G.tips}</div><p>Day ${G.day+1} earned $${dayTip}. ${nb?'That is your best total yet.':'Your best total is $'+best+'.'} Average rating ${all.toFixed(1)} stars across ${G.scores.length} clients.</p>
- <form class="post" id="post" autocomplete="off"><div class="nmrow"><input id="lb-first" maxlength="20" placeholder="First name" aria-label="First name" autocapitalize="words"><input id="lb-last" maxlength="20" placeholder="Last name" aria-label="Last name" autocapitalize="words"></div><p class="err" id="lb-err"></p><button class="go" id="lb-post" type="submit">Post to the leaderboard</button><button class="skip" type="button" id="again">Skip, main menu</button></form>`;
+ <form class="post" id="post" autocomplete="off"><div class="nmrow"><input id="lb-first" maxlength="20" placeholder="First name" aria-label="First name" autocapitalize="words"><input id="lb-last" maxlength="1" placeholder="Last initial" aria-label="Last initial" autocapitalize="characters"></div><p class="note">Your first name and last initial will appear on the public leaderboard.</p><p class="err" id="lb-err"></p><button class="go" id="lb-post" type="submit">Post to the leaderboard</button><button class="skip" type="button" id="again">Skip, main menu</button></form>`;
  $('again').onclick=()=>{G.live=false;showFront()};
  $('post').onsubmit=async e=>{e.preventDefault();const f=$('lb-first').value,l=$('lb-last').value,bad=nameProblem(f,l);if(bad){$('lb-err').textContent=bad;return}
   $('lb-post').disabled=true;$('lb-err').textContent='';
-  const row={first:tidyName(f),last:tidyName(l),tips:G.tips,rating:Math.round(all*10)/10,stylists:DAYS.map((_,i)=>(G.picks&&G.picks[i])||G.stylist.id)};
+  const row={first:tidyName(f),last:tidyName(l).slice(0,1),tips:G.tips,rating:Math.round(all*10)/10,stylists:DAYS.map((_,i)=>(G.picks&&G.picks[i])||G.stylist.id)};
   try{const id=await lbPost(row);stat('posted',{rank_tips:row.tips});G.live=false;$('sheet').hidden=true;showFront();showBoard(id)}catch(err){$('lb-post').disabled=false;$('lb-err').textContent='Could not post the score. Check your connection and try again.'}}}
 function dayUp(){
  clearTimeout(G.dayT);$('sheet').hidden=true;const d=$('dayup'),n=G.day+1;$('dayup-img').src=URL_['day'+(n+1)];$('dayup-img').alt='Day '+(n+1);d.querySelector('p').textContent=['','New clients. New cuts.','Foils. Tangles. New faces.','Balayage and a mohawk.','The big one. Everything, all day.'][n]||'New clients. New cuts.';d.hidden=false;tone(523,.16,.12);tone(659,.16,.12,.13);tone(784,.16,.12,.26);tone(1047,.4,.14,.4);
@@ -2235,7 +2242,7 @@ const BAD_ANY=['fuck','fuk','fck','shit','cunt','nigg','nigr','faggot','fagot','
 const BAD_WORD=['ass','arse','fag','dick','cock','cum','hoe','ho','tit','tits','poo','poop','pee','butt','prick','piss','damn','hell','crap','dyke','homo','coon','jap','paki','spic','kike','chink','wop','gook','nob','knob','slag','skank','turd','balls','nuts','bum','fart','suck','sucks','kill','rape','raper','sex','sexy','anal','nazi','nazis','clit','semen','wank','wanker','pedo','tranny','nude','naked','horny','boob','boobs','satan','test','admin','null','undefined','anon','anonymous'];
 function deLeet(v){return v.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[0@4]/g,m=>({'0':'o','@':'a','4':'a'})[m]).replace(/[1!|]/g,'i').replace(/3/g,'e').replace(/[5$]/g,'s').replace(/7/g,'t').replace(/8/g,'b').replace(/9/g,'g')}
 function nameProblem(f,l){
- f=f.trim();l=l.trim();if(!f||!l)return'Please enter your first and last name.';
+ f=f.trim();l=l.trim();if(!f||!l)return'Please enter your first name and last initial.';
  const ok=/^[\p{L}][\p{L}' -]{0,19}$/u;if(!ok.test(f)||!ok.test(l))return'Letters only, please (hyphens and apostrophes are fine).';
  const words=(f+' '+l).split(/[\s\-']+/).map(deLeet),joined=deLeet(f+l).replace(/[^a-z]/g,''),squash=joined.replace(/(.)\1+/g,'$1');
  if(BAD_ANY.some(w=>{w=w.replace(/ /g,'');return joined.includes(w)||squash.includes(w)})||words.some(w=>BAD_WORD.includes(w)||BAD_WORD.includes(w.replace(/(.)\1+/g,'$1'))))return'Please pick a different name for the board.';
@@ -2246,13 +2253,14 @@ async function showBoard(me){
  let rows;try{rows=await lbGet()}catch(e){L.innerHTML='<li class="lb-msg" style="display:block;border:0;background:none">Could not load the leaderboard. Check your connection.</li>';return}
  if(!rows.length){L.innerHTML='<li class="lb-msg" style="display:block;border:0;background:none">No scores yet. Finish all five days to be first!</li>';return}
  const sty=id=>{const s=STYLISTS.find(x=>x.id===id);return s?`<img alt="${s.name}" title="${s.name}" src="${URL_['stylist_'+s.id]}">`:''};
- L.innerHTML=rows.map((r,i)=>`<li class="${r.id===me?'me':''}"><span class="rk">${i+1}</span><div style="min-width:0"><div class="nm">${escH(r.first)} ${escH(r.last)}</div><div class="sty" aria-label="Stylists by day">${(r.stylists||[]).map(sty).join('')}</div></div><div class="sc"><span class="tp">$${Number(r.tips)|0}</span><span class="st"><b>&#9733;</b> ${Number(r.rating).toFixed(1)}</span></div></li>`).join('');
+ L.innerHTML=rows.map((r,i)=>`<li class="${r.id===me?'me':''}"><span class="rk">${i+1}</span><div style="min-width:0"><div class="nm">${escH(r.first)} ${escH(String(r.last||'').slice(0,1))}.</div><div class="sty" aria-label="Stylists by day">${(r.stylists||[]).map(sty).join('')}</div></div><div class="sc"><span class="tp">$${Number(r.tips)|0}</span><span class="st"><b>&#9733;</b> ${Number(r.rating).toFixed(1)}</span></div></li>`).join('');
  const m=L.querySelector('.me');if(m)m.scrollIntoView({block:'center'})}
 // Share: the phone's own share sheet where there is one, otherwise copy the link
 const SHARE_URL='https://gareth23broad.github.io/cutting-it-close/';
 $('fr-share').onclick=async()=>{audioOn();const d={title:'Cutting It Close',text:'Can you survive five days in the Noggins chair? Cut, color and curl your way to the top of the leaderboard.',url:SHARE_URL};stat('board_view',{share:1});
  if(navigator.share){try{await navigator.share(d)}catch(e){}return}
  try{await navigator.clipboard.writeText(SHARE_URL);const m=$('fr-copied');m.hidden=false;setTimeout(()=>m.hidden=true,1800)}catch(e){prompt('Copy this link:',SHARE_URL)}};
+$('fr-about').onclick=()=>{audioOn();$('about').hidden=false};$('ab-close').onclick=()=>{$('about').hidden=true};
 $('fr-board').onclick=()=>{audioOn();showBoard();stat('board_view',{})};
 $('lb-close').onclick=()=>{$('board').hidden=true};
 $('fr-continue').onclick=()=>{audioOn();hideFront()};
