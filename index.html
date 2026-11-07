@@ -2395,7 +2395,7 @@ function stat(kind,data){
  try{fetch(LB.url+'/rest/v1/events',{method:'POST',keepalive:true,headers:lbHead({'Content-Type':'application/json',Prefer:'return=minimal'}),body:JSON.stringify({game:STAT_ID,kind,device:statDevice(),data})}).catch(()=>{})}catch(e){}}
 // when someone leaves part-way through, note where they were
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&G.live)stat('left',{day:G.day,stage:G.stage,side:G.lilyGame||null,clients_done:G.served||0})});
-stat('page_open',{});
+stat('page_open',{src:(new URLSearchParams(location.search).get('src')||'').slice(0,20)||null});   // ?src=tv on the store TV's QR code, so scans can be counted
 $('load-img').src=URL_.noggins_dark;
 loadArt().then(()=>{
  $('title').src=URL_.title;$('nog').src=URL_.noggins_dark;$('nogwrap').style.setProperty('--logo',`url("${URL_.noggins_dark}")`);
