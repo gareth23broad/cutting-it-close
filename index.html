@@ -177,7 +177,39 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .fr-btns{position:absolute;left:0;right:0;bottom:0;margin:0 auto;max-width:420px;display:grid;gap:10px;padding:0 max(24px,env(safe-area-inset-left,0px)) calc(20px + env(safe-area-inset-bottom,0px))}
 .fr-btns .go{font-size:22px;letter-spacing:.08em;padding:14px}
 #fr-continue{background:#FFF8F4;color:#1B1C1E;box-shadow:0 4px 0 #B9B2A6}
-#fr-board{border:0;border-radius:999px;padding:12px;background:#17181Ae0;color:#FFF8F4b0;font:800 17px/1 Inter,system-ui,sans-serif;letter-spacing:.08em;display:flex;justify-content:center;align-items:center;gap:8px}
+#fr-board{border:0;border-radius:999px;padding:12px;background:#17181Ae0;color:#FFF8F4;font:800 17px/1 Inter,system-ui,sans-serif;letter-spacing:.08em;display:flex;justify-content:center;align-items:center;gap:8px}
+#board{position:absolute;inset:0;z-index:22;background:#000000b8;display:grid;place-items:center;padding:16px max(12px,env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-right,0px))}
+.lb{background:var(--paper);border-radius:22px;padding:18px 14px 14px;width:100%;max-width:420px;max-height:100%;display:grid;grid-template-rows:auto auto 1fr auto;gap:8px;box-shadow:0 5px 0 var(--ink)}
+.lb h2{margin:0;text-align:center;font-family:var(--display);font-weight:700;font-size:28px;text-transform:uppercase;letter-spacing:.06em}
+.lb-sub{margin:0;text-align:center;font-size:13px;font-weight:700;color:#1B1C1E99}
+#lb-list{list-style:none;margin:0;padding:0;overflow-y:auto;display:grid;gap:6px;align-content:start;min-height:120px}
+#lb-list li{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:8px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:7px 10px}
+#lb-list li.me{border-color:#4FAA3B;background:#effae9}
+#lb-list .rk{font:800 18px/1 Inter,system-ui,sans-serif;text-align:center;color:#1B1C1Eaa}
+#lb-list li{position:relative;overflow:hidden}
+#lb-list li:nth-child(-n+3) .rk,#lb-list li:nth-child(-n+3) .tp,#lb-list li:nth-child(-n+3) .st{color:#1B1C1E}
+#lb-list li:nth-child(-n+3) .st b{color:#1B1C1E}
+#lb-list li:nth-child(1){background:linear-gradient(135deg,#f7d66b,#e8b923 45%,#ffe28a 60%,#d9a514);border-color:#b8860b}
+#lb-list li:nth-child(2){background:linear-gradient(135deg,#eef1f3,#c9ced2 45%,#f4f6f7 60%,#aeb4b9);border-color:#8e959a}
+#lb-list li:nth-child(3){background:linear-gradient(135deg,#e9b383,#c98a52 45%,#f0c49b 60%,#b0703c);border-color:#8f5a2e}
+#lb-list li.me{box-shadow:0 0 0 3px #4FAA3B}
+/* a sweep of light across first place every few seconds */
+#lb-list li:nth-child(1)::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,#fffbe8cc 48%,#ffffff 50%,#fffbe8cc 52%,transparent 65%);transform:translateX(-100%);animation:shimmer 3.2s ease-in-out infinite;pointer-events:none}
+@keyframes shimmer{0%,35%{transform:translateX(-100%)}75%,100%{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){#lb-list li:nth-child(1)::after{animation:none;opacity:0}}
+#lb-list .nm{font-weight:800;font-size:15px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#lb-list .sty{display:flex;gap:3px;margin-top:4px}
+#lb-list .sty img{width:22px;height:22px;border-radius:50%;background:#E9E3D8;border:1.5px solid var(--ink)}
+#lb-list .sc{text-align:right}
+#lb-list .tp{display:block;font:800 18px/1.1 Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#3d8f2c}
+#lb-list .st{font-size:12px;font-weight:800;color:#1B1C1Eaa;white-space:nowrap}
+#lb-list .st b{color:#e0a300}
+.lb-msg{text-align:center;font-weight:700;color:#1B1C1E99;padding:20px 0}
+.post{display:grid;gap:8px;margin-top:6px}
+.post .nmrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.post input{font:600 16px Inter,system-ui,sans-serif;padding:11px 12px;border-radius:12px;border:2px solid var(--line);background:#fff;color:var(--ink);width:100%;box-sizing:border-box}
+.post .err{margin:0;color:#c8302a;font-weight:700;font-size:14px;min-height:1.2em}
+.post .skip{background:none;border:0;color:#1B1C1E99;font:700 15px Inter,system-ui,sans-serif;padding:6px}
 #fr-board small{background:#4FAA3B;color:#fff;border-radius:999px;padding:3px 8px;font-size:11px;letter-spacing:.04em}
 .screen{position:absolute;inset:0;z-index:5;background:var(--wall);overflow-y:auto;
   padding:clamp(14px,3vh,32px) max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:9px}
@@ -298,7 +330,8 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
   <section id="sheet" hidden></section>
   <section id="confirm" hidden><div><h2 id="confirm-h">Start a new game?</h2><p id="confirm-text"></p><button class="go" id="stay">Keep playing</button><button id="leave">Main menu</button></div></section>
   <div id="load"><img id="load-img" alt="Cutting It Close is loading"></div>
-  <section id="front" hidden><canvas id="front-cv"></canvas><div class="fr-btns"><button class="go" id="fr-continue" hidden>CONTINUE</button><button class="go" id="fr-play">PLAY</button><button id="fr-board" disabled>LEADERBOARD <small>Coming soon</small></button></div></section>
+  <section id="front" hidden><canvas id="front-cv"></canvas><div class="fr-btns"><button class="go" id="fr-continue" hidden>CONTINUE</button><button class="go" id="fr-play">PLAY</button><button id="fr-board">LEADERBOARD</button></div></section>
+  <section id="board" hidden><div class="lb"><h2>Leaderboard</h2><p class="lb-sub">Top five-day totals at Noggins</p><ol id="lb-list"></ol><button class="go" id="lb-close">Back</button></div></section>
   <section id="pick" class="screen">
     <h1 class="logo"><img id="title" alt="Cutting It Close"></h1>
     <p class="sub">Pick your Noggins stylist</p>
@@ -505,12 +538,18 @@ const P0=[0,0],P1=[0,0],Q0=[0,0],Q1=[0,0];
 function ringAdd(s,f,o){const u=f/(N-1),k=clamp((u-s.r0)/.08,0,1)*s.ring;if(k<=0)return;const ph=(f-s.r0*(N-1))*2.3+s.rph;o[0]+=Math.sin(ph)*.12*k;o[1]+=(Math.cos(ph)-1)*.06*k-(u-s.r0)*.3*k}
 function ringPt(s,f,o){const n=Math.min(N-2,Math.floor(f)),u=f-n,r=s.ring;s.ring=0;pt(s,n,Q0);pt(s,n+1,Q1);s.ring=r;o[0]=lerp(Q0[0],Q1[0],u);o[1]=lerp(Q0[1],Q1[1],u);ringAdd(s,f,o)}
 function ringStrand(ctx,s,f0,f1){ctx.beginPath();ringPt(s,f0,P0);ctx.moveTo(P0[0],P0[1]);for(let f=f0+.2;f<f1;f+=.2){ringPt(s,f,P0);ctx.lineTo(P0[0],P0[1])}ringPt(s,f1,P0);ctx.lineTo(P0[0],P0[1]);ctx.stroke()}
+// a strand as one smooth curve, added to whatever path is open
+function curvePath(ctx,s,t){const f=t*(N-1),n=Math.min(N-1,Math.floor(f));pt(s,0,P0);ctx.moveTo(P0[0],P0[1]);let px=P0[0],py=P0[1];
+ for(let i=1;i<=n;i++){pt(s,i,P0);ctx.quadraticCurveTo(px,py,(px+P0[0])/2,(py+P0[1])/2);px=P0[0];py=P0[1]}
+ if(n<N-1){pt(s,n+1,P1);const u=f-n;ctx.quadraticCurveTo(px,py,lerp(px,P1[0],u),lerp(py,P1[1],u))}else ctx.lineTo(px,py)}
+function rangePath(ctx,s,u0,u1,tEnd){u1=Math.min(u1,tEnd);if(u1<=u0)return;const a=Math.round(u0*(N-1)),b=Math.min(N-1,Math.round(u1*(N-1)));if(b<=a)return;pt(s,a,P0);ctx.moveTo(P0[0],P0[1]);for(let i=a+1;i<=b;i++){pt(s,i,P0);ctx.lineTo(P0[0],P0[1])}}
+// the extra layers go down in a handful of strokes, one per colour, rather than one per strand: far kinder to an iPhone
+function batch(ctx,list,colorOf,add){const m=new Map();for(const s of list){if(s.ring)continue;const k=colorOf(s);if(!k)continue;let a=m.get(k);if(!a)m.set(k,a=[]);a.push(s)}
+ for(const[k,a]of m){ctx.strokeStyle=k;ctx.beginPath();for(const s of a)add(s);ctx.stroke()}}
 let HIFI=false;   // the detailed art pass: smoother, layered hair with a shine, shaded faces, tools that cast shadows
 function strand(ctx,s,t){
  if(s.ring){ringStrand(ctx,s,0,t*(N-1));return}
- if(HIFI){const f=t*(N-1),n=Math.min(N-1,Math.floor(f));ctx.beginPath();pt(s,0,P0);ctx.moveTo(P0[0],P0[1]);let px=P0[0],py=P0[1];
-  for(let i=1;i<=n;i++){pt(s,i,P0);ctx.quadraticCurveTo(px,py,(px+P0[0])/2,(py+P0[1])/2);px=P0[0];py=P0[1]}
-  if(n<N-1){pt(s,n+1,P1);const u=f-n;ctx.quadraticCurveTo(px,py,lerp(px,P1[0],u),lerp(py,P1[1],u))}else ctx.lineTo(px,py);ctx.stroke();return}
+ if(HIFI){ctx.beginPath();curvePath(ctx,s,t);ctx.stroke();return}
  const f=t*(N-1),n=Math.min(N-1,Math.floor(f));
  ctx.beginPath();pt(s,0,P0);ctx.moveTo(P0[0],P0[1]);
  for(let i=1;i<=n;i++){pt(s,i,P0);ctx.lineTo(P0[0],P0[1])}
@@ -530,39 +569,39 @@ function drawClient(ctx,cx,cy,U,c,hair,o){
  const lw=1.9,lh=lw*IMG.noggins_dark.naturalHeight/IMG.noggins_dark.naturalWidth;ctx.drawImage(rast('noggins_dark',Math.round(lw*U*q),Math.round(lh*U*q)),-lw/2,1.72,lw,lh);
  if(o.tilt){ctx.translate(0,TALK_PIVOT);ctx.rotate(o.tilt);ctx.translate(0,-TALK_PIVOT)}
  ctx.lineWidth=.08;
- if(HIFI){ctx.lineWidth=.1;for(const s of hair.back){ctx.strokeStyle=hlOf(s)[0][Math.max(0,Math.round(s.d*5)-2)];strand(ctx,s,useT?s.target:s.t)}ctx.lineWidth=.064}
  for(const s of hair.back){ctx.strokeStyle=hlOf(s)[s.shade][Math.round(s.d*5)];strand(ctx,s,useT?s.target:s.t);if(c.root&&!useT){ctx.strokeStyle=c.rootTab[Math.round((s.root||0)*4)][Math.round(s.d*5)];strand(ctx,s,Math.min(ROOT_T,s.t))}}
  // face art sits on a 4 x 4 head-unit artboard
  ctx.drawImage(rast(`client_${c.id}_${MOOD[o.mood]||'waiting'}`,P),-2,-2,4,4);
- if(HIFI&&!c.flat)faceShade(ctx,hair,useT);
+ if(HIFI&&!c.flat)ctx.drawImage(faceShadeArt(P),-2,-2,4,4);
  if(c.glasses)ctx.drawImage(rast(`client_${c.id}_glasses`,P),-2,-2,4,4);
  const avg=o.d==null?1:o.d;
  ctx.save();ctx.translate(-2,-2);ctx.scale(.002,.002);ctx.fillStyle=c.root&&!useT?c.rootTab[Math.round((G.avgRoot||0)*4)][Math.round(avg*5)]:pal[1][Math.round(avg*5)];ctx.fill(SCALP);ctx.restore();
  ctx.lineWidth=c.flat?.1:.072;
- if(HIFI&&!c.flat){ctx.lineWidth=.098;for(const s of hair.front){ctx.strokeStyle=hlOf(s)[0][Math.max(0,Math.round(s.d*5)-2)];strand(ctx,s,useT?s.target:s.t)}ctx.lineWidth=.058}
+ if(HIFI&&!c.flat){ctx.lineWidth=.098;batch(ctx,hair.front,s=>hlOf(s)[0][Math.max(0,Math.round(s.d*5)-2)],s=>curvePath(ctx,s,useT?s.target:s.t));ctx.lineWidth=.058}
  for(const s of hair.front){ctx.strokeStyle=hlOf(s)[s.shade][Math.round(s.d*5)];strand(ctx,s,useT?s.target:s.t);
   const bh=c.bal?(useT?(s.bsec!=null?1:null):s.bhl):null;if(bh!=null){ctx.strokeStyle=c.hlPal[bh][s.shade][Math.round(s.d*5)];strandRange(ctx,s,s.broot&&!useT?.06:.34,1,useT?s.target:s.t)}if(c.root&&!useT){ctx.strokeStyle=c.rootTab[Math.round((s.root||0)*4)][Math.round(s.d*5)];strand(ctx,s,Math.min(ROOT_T,s.t))}}
  if(HIFI&&!c.flat)hairShine(ctx,hair,useT,o.d==null?1:o.d,s=>hlOf(s)[3][5]);
  ctx.restore()}
 // Detailed pass. One light, up and to the left, for everything: the face, the hair's shine and the tools' shadows.
 const FACE_OVAL=(c)=>{c.beginPath();c.ellipse(0,-.02,.88,.99,0,0,7)};
-function faceShade(c,hair,useT){
+function faceShadeArt(P){const id='faceshade@'+P;let cv=RC.get(id);if(cv)return cv;
+ cv=document.createElement('canvas');cv.width=cv.height=P;const c=cv.getContext('2d');c.scale(P/4,P/4);c.translate(2,2);
  c.save();FACE_OVAL(c);c.clip();
- // the hair throws a soft shadow down onto the forehead and cheeks
- c.save();c.translate(.035,.06);c.lineWidth=.1;c.strokeStyle='rgba(60,25,10,.16)';for(const s of hair.front)strand(c,s,Math.min(.5,useT?s.target:s.t));c.restore();
  // shading turning away from the light, round the jaw and the far side
  let g=c.createRadialGradient(-.2,-.25,.2,-.05,0,1.08);g.addColorStop(0,'rgba(70,30,15,0)');g.addColorStop(.62,'rgba(70,30,15,0)');g.addColorStop(1,'rgba(70,30,15,.26)');c.fillStyle=g;c.fillRect(-1,-1.1,2,2.2);
+ // a soft band under the hairline where the hair shades the forehead
+ g=c.createLinearGradient(0,-.75,0,-.35);g.addColorStop(0,'rgba(60,25,10,.2)');g.addColorStop(1,'rgba(60,25,10,0)');c.fillStyle=g;c.fillRect(-1,-1.1,2,.8);
  // under the nose, and the soft hollow below the lip
  const blob=(x,y,r,col,a)=>{const q=c.createRadialGradient(x,y,0,x,y,r);q.addColorStop(0,col+a+')');q.addColorStop(1,col+'0)');c.fillStyle=q;c.fillRect(x-r,y-r,r*2,r*2)};
  blob(.07,.24,.13,'rgba(70,30,15,',.16);blob(0,.66,.13,'rgba(70,30,15,',.1);
  // highlights where the light lands: brow, bridge of the nose, cheekbones, chin
  blob(-.22,-.42,.34,'rgba(255,248,235,',.2);blob(-.02,.12,.07,'rgba(255,248,235,',.18);blob(-.44,.2,.17,'rgba(255,248,235,',.17);blob(.42,.2,.13,'rgba(255,248,235,',.09);blob(-.04,.76,.1,'rgba(255,248,235,',.14);
- c.restore()}
+ c.restore();RC.set(id,cv);return cv}
 function hairShine(c,hair,useT,dry,lightOf){
  // a soft gloss across the crown in the hair's own lightest tone, stronger on the side facing the light, then a few fine single hairs
- if(dry<.5)return;const a=(dry-.5)*2;c.save();c.lineCap='round';c.globalCompositeOperation='screen';
- c.lineWidth=.034;hair.front.forEach((s,i)=>{if(i%2)return;c.strokeStyle=lightOf(s);c.globalAlpha=(s.wet[0]<0?.3:.14)*a;strandRange(c,s,.08+(i%5)*.012,.2+(i%7)*.012,useT?s.target:s.t)});
- c.lineWidth=.011;c.globalAlpha=.22*a;hair.front.forEach((s,i)=>{if(i%4===0){c.strokeStyle=lightOf(s);strandRange(c,s,.32,.8,useT?s.target:s.t)}});
+ if(dry<.5)return;const a=(dry-.5)*2,T=s=>useT?s.target:s.t,F=hair.front;c.save();
+ c.lineWidth=.034;for(const side of[-1,1]){c.globalAlpha=(side<0?.26:.12)*a;batch(c,F.filter((s,i)=>!(i%2)&&Math.sign(s.wet[0])===side),lightOf,s=>{const i=s.shade;rangePath(c,s,.08+(i%2)*.025,.21+(i%3)*.03,T(s))})}
+ c.lineWidth=.011;c.globalAlpha=.2*a;batch(c,F.filter((s,i)=>i%4===0),lightOf,s=>rangePath(c,s,.32,.8,T(s)));
  c.restore()}
 
 /* ---------- canvas and scene ---------- */
@@ -910,6 +949,7 @@ function finishCut(){
  setLoop('dryer',0);
  const col=!!(G.c.color||G.c.root||G.c.bal),curl=G.c.curling?CI.score:null,base=(flat?cut:tang?KN.comb*.25+KN.cond*.25+cut*.35+dr*.15:G.c.root?F.score*.4+F.pullScore*.1+cut*.3+sh*.1+dr*.1:col?F.score*.25+F.pullScore*.25+cut*.3+sh*.1+dr*.1:cut*.6+sh*.2+dr*.2),total=Math.round(curl==null?base:base*.8+curl*.2),stars=total>=93?5:total>=80?4:total>=65?3:total>=45?2:1;
  const dried=!G.c.quick||G.c.tangle,tip=Math.round((total*.3+(stars===5?(G.stylist.star||10):0))*(G.stylist.tip||1)+(dried?G.stylist.dryTip||0:0));G.tips+=tip;G.scores.push(stars);paintHud();
+ stat('client',{day:G.day,id:G.c.id,style:G.c.style,kind:G.c.quick?(G.c.tangle?'tangle':G.c.flat?'flat':'walk'):G.c.bal?'balayage':G.c.color?'foils':G.c.root?'root':G.c.iron?'iron':G.c.wetset?'wetset':'regular',stylist:G.stylist.id,stars,total,tip,cut,wash:sh,dry:dr,curl:curl,snaps:curl==null?null:CI.locks.filter(q=>q.state==='broke').length});
  G.stage='result';paintSteps();$('finish').hidden=true;
  setMood(stars>=4?'happy':stars===3?'calm':'sad');
  if(stars>=3){tone(659,.15,.12);tone(880,.15,.12,.1);tone(1175,.3,.12,.2)}else tone(220,.35,.14);
@@ -926,6 +966,7 @@ function finishCut(){
 }
 function endDay(){
  const last=G.day===DAYS.length-1,dayTip=G.tips-(G.dayTips||0),sc=G.scores.slice(G.dayScores||0),avg=sc.reduce((a,b)=>a+b,0)/Math.max(1,sc.length);
+ stat('day_end',{day:G.day,stylist:G.stylist.id,tips:dayTip,rating:Math.round(avg*10)/10,clients:sc.length});if(last)stat('game_end',{tips:G.tips,rating:Math.round(G.scores.reduce((a,b)=>a+b,0)/Math.max(1,G.scores.length)*10)/10,stylists:G.picks});
  G.stage='end';G.c=null;paintAvatar();sizeUp();$('who').textContent=`${G.stylist.name} · Day ${G.day+1} done`;
  const S=$('sheet');S.hidden=false;
  if(!last){
@@ -933,8 +974,13 @@ function endDay(){
   G.dayT=setTimeout(dayUp,6000);$('again').onclick=dayUp;return}
  const best=+store.get('cc-best')||0,nb=G.tips>best;if(nb)store.set('cc-best',G.tips);
  const all=G.scores.reduce((a,b)=>a+b,0)/Math.max(1,G.scores.length);
- S.innerHTML=`<img class="deco" alt="" src="${URL_.decor_hood_dryer}"><span class="tag">Your ${['','one','two','three','four','five'][DAYS.length]}-day total</span><div class="big">$${G.tips}</div><p>Day ${G.day+1} earned $${dayTip}. ${nb?'That is your best total yet.':'Your best total is $'+best+'.'} Average rating ${all.toFixed(1)} stars across ${G.scores.length} clients.</p><button class="go" id="again">Main menu</button>`;
- $('again').onclick=()=>{G.live=false;showFront()}}
+ S.innerHTML=`<img class="deco" alt="" src="${URL_.decor_hood_dryer}"><span class="tag">Your ${['','one','two','three','four','five'][DAYS.length]}-day total</span><div class="big">$${G.tips}</div><p>Day ${G.day+1} earned $${dayTip}. ${nb?'That is your best total yet.':'Your best total is $'+best+'.'} Average rating ${all.toFixed(1)} stars across ${G.scores.length} clients.</p>
+ <form class="post" id="post" autocomplete="off"><div class="nmrow"><input id="lb-first" maxlength="20" placeholder="First name" aria-label="First name" autocapitalize="words"><input id="lb-last" maxlength="20" placeholder="Last name" aria-label="Last name" autocapitalize="words"></div><p class="err" id="lb-err"></p><button class="go" id="lb-post" type="submit">Post to the leaderboard</button><button class="skip" type="button" id="again">Skip, main menu</button></form>`;
+ $('again').onclick=()=>{G.live=false;showFront()};
+ $('post').onsubmit=async e=>{e.preventDefault();const f=$('lb-first').value,l=$('lb-last').value,bad=nameProblem(f,l);if(bad){$('lb-err').textContent=bad;return}
+  $('lb-post').disabled=true;$('lb-err').textContent='';
+  const row={first:tidyName(f),last:tidyName(l),tips:G.tips,rating:Math.round(all*10)/10,stylists:DAYS.map((_,i)=>(G.picks&&G.picks[i])||G.stylist.id)};
+  try{const id=await lbPost(row);stat('posted',{rank_tips:row.tips});G.live=false;$('sheet').hidden=true;showFront();showBoard(id)}catch(err){$('lb-post').disabled=false;$('lb-err').textContent='Could not post the score. Check your connection and try again.'}}}
 function dayUp(){
  clearTimeout(G.dayT);$('sheet').hidden=true;const d=$('dayup'),n=G.day+1;$('dayup-img').src=URL_['day'+(n+1)];$('dayup-img').alt='Day '+(n+1);d.querySelector('p').textContent=['','New clients. New cuts.','Foils. Tangles. New faces.','Balayage and a mohawk.','The big one. Everything, all day.'][n]||'New clients. New cuts.';d.hidden=false;tone(523,.16,.12);tone(659,.16,.12,.13);tone(784,.16,.12,.26);tone(1047,.4,.14,.4);
  G.dayT=setTimeout(()=>{d.hidden=true;showPick(n)},2600)}
@@ -944,8 +990,8 @@ function showPick(day=0){
 $('cards').innerHTML=STYLISTS.map((s,i)=>`<button class="card" data-i="${i}"><img alt="" src="${URL_['stylist_'+s.id]}"><div><b>${s.name}</b><em>${s.perk}</em><span>${s.desc}</span></div></button>`).join('');
 $('cards').addEventListener('click',e=>{
  const b=e.target.closest('.card');if(!b)return;audioOn();
- G.stylist=STYLISTS[+b.dataset.i];const day=G.pickDay;if(!day){G.tips=0;G.scores=[];G.live=true;G.curlDays=shuffle(DAYS.map((_,i)=>i)).slice(0,2)}   // two curl clients a playthrough, on two random days
- G.stage='intro';paintAvatar();$('pick').hidden=true;startDay(day)});
+ G.stylist=STYLISTS[+b.dataset.i];const day=G.pickDay;G.picks=G.picks||[];if(!day){G.picks=[];G.tips=0;G.scores=[];G.live=true;statNew();stat('game_start',{});G.curlDays=shuffle(DAYS.map((_,i)=>i)).slice(0,2)}   // two curl clients a playthrough, on two random days
+ G.picks[day]=G.stylist.id;stat('day_start',{day,stylist:G.stylist.id});G.stage='intro';paintAvatar();$('pick').hidden=true;startDay(day)});
 
 /* ---------- Nicole, the colour client: Foil Stack, then Foil Pull, then the usual wash, dry and cut ---------- */
 // seven rows each side, close enough to overlap; every foil slides up and down beside the face, never across it
@@ -964,10 +1010,10 @@ function startDay(d){
  G.curlId=!G.curlDays||G.curlDays.includes(d)?curlPick(d):null;
  Object.assign(G,{day:d,done:0,served:0,colorQ:DAYS[d].colors.slice(),back:[],walked:false,over:null,idx:0,dayTips:G.tips,dayScores:G.scores.length,sideQ:daySides(d)});
  nextUp()}
-function runSide(g){G.over=null;if(LILY_GAMES.includes(g)){G.lilyGame=g;ringPhone()}else({sweep:sweepIntro,tear:tearIntro,dish:dishIntro,coffee:coffeeIntro})[g]()}
+function runSide(g){G.over=null;G.side=g;if(LILY_GAMES.includes(g)){G.lilyGame=g;ringPhone()}else({sweep:sweepIntro,tear:tearIntro,dish:dishIntro,coffee:coffeeIntro})[g]()}
 // after each client: a side game if one is due, otherwise the next client
 function nextStep(){const ev=G.sideQ.find(e=>!e.done&&e.after<=G.served);if(ev){ev.done=true;runSide(ev.g);return}nextUp()}
-const sideDone=()=>{G.lilyGame=null;nextStep()};
+const sideDone=()=>{const S=$('sheet'),tag=S.querySelector('.tag'),m=S.textContent.match(/adds \$(\d+)/);stat('side',{day:G.day,game:G.side||G.lilyGame,result:tag?tag.textContent:null,tip:m?+m[1]:null});G.lilyGame=null;nextStep()};
 function nextUp(){
  const D=DAYS[G.day],due=G.back.findIndex(k=>k.due<=G.done);
  if(due>=0){nicoleBack(G.back.splice(due,1)[0]);return}
@@ -2163,6 +2209,44 @@ function showFront(){
  G.paused=true;up();if(ringT)stopRing();$('confirm').hidden=true;$('fr-continue').hidden=!G.live;$('front').hidden=false;drawFront()}
 function hideFront(){$('front').hidden=true;G.paused=false;if(!$('ring').hidden&&!ringT){trill();ringT=setInterval(trill,1300)}}
 function newGame(){$('confirm').hidden=true;$('front').hidden=true;G.paused=false;G.live=false;showPick(0)}
+
+/* ---------- Leaderboard: full names, five-day tips, average stars and the stylist picked each day ---------- */
+// Scores live in a small Supabase table. With no project set, they are kept on this device so the board still works.
+const LB={url:'https://ihayvqtxymaofaeykdas.supabase.co',key:'sb_publishable_5qc0eKvqdzrNaiOx3UAs9Q_sD7mXgXt'};   // the publishable key is meant to be public
+// new-style keys go in the apikey header only; the old JWT keys also go in Authorization
+const lbHead=(more)=>({apikey:LB.key,...(LB.key.startsWith('eyJ')?{Authorization:'Bearer '+LB.key}:{}),...more});
+const lbLive=()=>!!(LB.url&&LB.key);
+async function lbGet(){
+ if(!lbLive()){try{return JSON.parse(store.get('cc-lb')||'[]').sort((a,b)=>b.tips-a.tips).slice(0,20)}catch(e){return[]}}
+ const r=await fetch(LB.url+'/rest/v1/scores?select=id,first,last,tips,rating,stylists&order=tips.desc,created_at.asc&limit=20',{headers:lbHead({})});
+ if(!r.ok)throw new Error(r.status);return r.json()}
+async function lbPost(row){
+ if(!lbLive()){const a=JSON.parse(store.get('cc-lb')||'[]'),id=Date.now();a.push({...row,id});store.set('cc-lb',JSON.stringify(a));return id}
+ const r=await fetch(LB.url+'/rest/v1/scores',{method:'POST',headers:lbHead({'Content-Type':'application/json',Prefer:'return=representation'}),body:JSON.stringify(row)});
+ if(!r.ok)throw new Error(r.status);const j=await r.json();return j[0]&&j[0].id}
+// names: letters, spaces, hyphens and apostrophes; tidied to "Mary-Jane O'Neil"
+const tidyName=v=>v.trim().replace(/\s+/g,' ').toLowerCase().replace(/(^|[\s\-'])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());
+// Words a family salon will not post. Names are checked after undoing tricks like f*ck, sh1t or s-h-i-t.
+// Some short words only count as a whole name, so real names such as Dickson, Hancock or Cassidy still go through.
+const BAD_ANY=['fuck','fuk','fck','shit','cunt','nigg','nigr','faggot','fagot','bitch','biatch','whore','slut','rapist','hitler','porn','penis','vagina','pussy','twat','jizz','dildo','bollock','bastard','asshole','arsehole','retard','molest','paedo','pedophile','incest','orgasm','sperm','queef','kkk','titty'];
+const BAD_WORD=['ass','arse','fag','dick','cock','cum','hoe','ho','tit','tits','poo','poop','pee','butt','prick','piss','damn','hell','crap','dyke','homo','coon','jap','paki','spic','kike','chink','wop','gook','nob','knob','slag','skank','turd','balls','nuts','bum','fart','suck','sucks','kill','rape','raper','sex','sexy','anal','nazi','nazis','clit','semen','wank','wanker','pedo','tranny','nude','naked','horny','boob','boobs','satan','test','admin','null','undefined','anon','anonymous'];
+function deLeet(v){return v.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[0@4]/g,m=>({'0':'o','@':'a','4':'a'})[m]).replace(/[1!|]/g,'i').replace(/3/g,'e').replace(/[5$]/g,'s').replace(/7/g,'t').replace(/8/g,'b').replace(/9/g,'g')}
+function nameProblem(f,l){
+ f=f.trim();l=l.trim();if(!f||!l)return'Please enter your first and last name.';
+ const ok=/^[\p{L}][\p{L}' -]{0,19}$/u;if(!ok.test(f)||!ok.test(l))return'Letters only, please (hyphens and apostrophes are fine).';
+ const words=(f+' '+l).split(/[\s\-']+/).map(deLeet),joined=deLeet(f+l).replace(/[^a-z]/g,''),squash=joined.replace(/(.)\1+/g,'$1');
+ if(BAD_ANY.some(w=>{w=w.replace(/ /g,'');return joined.includes(w)||squash.includes(w)})||words.some(w=>BAD_WORD.includes(w)||BAD_WORD.includes(w.replace(/(.)\1+/g,'$1'))))return'Please pick a different name for the board.';
+ return''}
+const escH=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+async function showBoard(me){
+ const L=$('lb-list');$('board').hidden=false;L.innerHTML='<li class="lb-msg" style="display:block;border:0;background:none">Loading the board...</li>';
+ let rows;try{rows=await lbGet()}catch(e){L.innerHTML='<li class="lb-msg" style="display:block;border:0;background:none">Could not load the leaderboard. Check your connection.</li>';return}
+ if(!rows.length){L.innerHTML='<li class="lb-msg" style="display:block;border:0;background:none">No scores yet. Finish all five days to be first!</li>';return}
+ const sty=id=>{const s=STYLISTS.find(x=>x.id===id);return s?`<img alt="${s.name}" title="${s.name}" src="${URL_['stylist_'+s.id]}">`:''};
+ L.innerHTML=rows.map((r,i)=>`<li class="${r.id===me?'me':''}"><span class="rk">${i+1}</span><div style="min-width:0"><div class="nm">${escH(r.first)} ${escH(r.last)}</div><div class="sty" aria-label="Stylists by day">${(r.stylists||[]).map(sty).join('')}</div></div><div class="sc"><span class="tp">$${Number(r.tips)|0}</span><span class="st"><b>&#9733;</b> ${Number(r.rating).toFixed(1)}</span></div></li>`).join('');
+ const m=L.querySelector('.me');if(m)m.scrollIntoView({block:'center'})}
+$('fr-board').onclick=()=>{audioOn();showBoard();stat('board_view',{})};
+$('lb-close').onclick=()=>{$('board').hidden=true};
 $('fr-continue').onclick=()=>{audioOn();hideFront()};
 $('fr-play').onclick=()=>{audioOn();if(!G.live){newGame();return}
  $('confirm-h').textContent='Start a new game?';$('confirm-text').textContent=`Your current game and $${G.tips} in tips will be lost.`;$('stay').textContent='Keep my game';$('leave').textContent='New game';$('confirm').hidden=false};
@@ -2240,7 +2324,7 @@ function draw(){
  if(st==='curl')drawCurlIron();
  drawTalk();drawBalTop();
  if(!Pt.down)return;
- if(HIFI){ctx.shadowColor='rgba(25,12,5,.38)';ctx.shadowBlur=12*dpr;ctx.shadowOffsetX=6*dpr;ctx.shadowOffsetY=10*dpr}
+ if(HIFI){ctx.shadowColor='rgba(25,12,5,.26)';ctx.shadowOffsetX=6*dpr;ctx.shadowOffsetY=10*dpr}   // a crisp shadow: a blurred one is too slow on iPhone
  if(st==='shampoo'||st==='gel'||st==='cond')drawBottle(Pt.x,Pt.y,st);
  if(st==='tangle')drawComb(Pt.x,Pt.y-OFF);
  if(st==='iron')drawIron(Pt.x,Pt.y-34);
@@ -2260,6 +2344,18 @@ function frame(now){
  washMix=clamp(washMix+(G.stage==='shampoo'||G.stage==='rinse'||G.stage==='cond'||G.stage==='soak'?dt:-dt)/.4,0,1);
  draw();requestAnimationFrame(frame)}
 addEventListener('resize',()=>{sizeUp()});
+/* ---------- Anonymous play statistics, so we can see how the game is played and balance it ----------
+   No names, no accounts, no cookies: just a random id for each game, the kind of device, and what happened.
+   Only sent from the live website, never from test pages or local copies. */
+let STAT_ID='';
+function statNew(){STAT_ID=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2))}
+const statDevice=()=>{const u=navigator.userAgent;return/iPhone/.test(u)?'iphone':/iPad|Macintosh/.test(u)&&navigator.maxTouchPoints>1?'ipad':/Android/.test(u)?(/Mobile/.test(u)?'android-phone':'android-tablet'):'computer'};
+function stat(kind,data){
+ if(G.noStats||!lbLive()||location.protocol!=='https:'||document.title!=='Cutting It Close')return;   // test pages have their own titlesif(!STAT_ID)statNew();
+ try{fetch(LB.url+'/rest/v1/events',{method:'POST',keepalive:true,headers:lbHead({'Content-Type':'application/json',Prefer:'return=minimal'}),body:JSON.stringify({game:STAT_ID,kind,device:statDevice(),data})}).catch(()=>{})}catch(e){}}
+// when someone leaves part-way through, note where they were
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&G.live)stat('left',{day:G.day,stage:G.stage,side:G.lilyGame||null,clients_done:G.served||0})});
+stat('page_open',{});
 $('load-img').src=URL_.noggins_dark;
 loadArt().then(()=>{
  $('title').src=URL_.title;$('nog').src=URL_.noggins_dark;$('nogwrap').style.setProperty('--logo',`url("${URL_.noggins_dark}")`);
