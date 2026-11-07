@@ -217,6 +217,7 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .ab-body{overflow-y:auto;font-size:15px;line-height:1.45}
 .ab-body p{margin:0 0 10px}.ab-body h3{margin:12px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#3d8f2c}
 .ab-small{font-size:12px;color:#1B1C1E99}
+.boost{display:inline-block;margin-top:4px;background:linear-gradient(135deg,#f7d66b,#e8b923 45%,#ffe28a 60%,#d9a514);color:#1B1C1E;border:2px solid #b8860b;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:800}
 .post .note{margin:0;font-size:13px;font-weight:600;color:#1B1C1E99}
 #fr-copied{margin:0;text-align:center;color:#FFF8F4;font:700 14px Inter,system-ui,sans-serif}
 #fr-board small{background:#4FAA3B;color:#fff;border-radius:999px;padding:3px 8px;font-size:11px;letter-spacing:.04em}
@@ -464,7 +465,7 @@ const DAYS=[
   {id:'ruby',name:'Ruby',style:'peak',wetset:1,ask:'"Scrunch my curls, then a center peak, please."'},
   {id:'owen',name:'Owen',style:'lineup',lineup:1,male:1,len:.95,noBack:1,ask:'"Short and tidy, please. Scissors on top, then line my sides up with the clippers."'},
   {id:'tara',name:'Tara',style:'butterfly',glasses:1,ask:'"A butterfly cut, please. Long wings out to the sides."'}],
-  colors:[{c:IVY,at:0,gap:2},{c:FIONA,at:1,gap:2},{c:NINA,at:3,gap:2}],sides:['book','restock','fold','sweep','tear','dish']}
+  colors:[{c:IVY,at:0,gap:2},{c:FIONA,at:1,gap:2},{c:NINA,at:3,gap:2}],pickColors:2,sides:['book','restock','fold','sweep','tear','dish'],pickSides:3,boost:1.4}   // two colour clients and three side games, picked fresh each game, and +40% tips to make up for it
 ];
 // Sharon's color is a real recipe of the tubes, so a perfect match is always possible
 const TUBES=[['Red','#C8302A'],['Yellow','#F2C230'],['Blue','#2F5FB0'],['Red-orange','#D9542A'],['Yellow-orange','#EE9A2E'],['Blue-violet','#4B3FA0']],RECIPE=[2,3,2,0,0,0];
@@ -969,14 +970,14 @@ function finishCut(){
  const tang=!!G.c.tangle,flat=!!G.c.quick&&!tang,cut=Math.round(cutScore()*100),sh=Math.max(0,100-20*G.eye),dr=Math.max(0,100-20*G.hot);
  setLoop('dryer',0);
  const col=!!(G.c.color||G.c.root||G.c.bal),curl=G.c.curling?CI.score:null,base=(flat?cut:tang?KN.comb*.25+KN.cond*.25+cut*.35+dr*.15:G.c.root?F.score*.4+F.pullScore*.1+cut*.3+sh*.1+dr*.1:col?F.score*.25+F.pullScore*.25+cut*.3+sh*.1+dr*.1:cut*.6+sh*.2+dr*.2),total=Math.round(curl==null?base:base*.8+curl*.2),stars=total>=93?5:total>=80?4:total>=65?3:total>=45?2:1;
- const dried=!G.c.quick||G.c.tangle,tip=Math.round((total*.3+(stars===5?(G.stylist.star||10):0))*(G.stylist.tip||1)+(dried?G.stylist.dryTip||0:0));G.tips+=tip;G.scores.push(stars);paintHud();
+ const dried=!G.c.quick||G.c.tangle,boost=DAYS[G.day].boost||1,tip=Math.round(((total*.3+(stars===5?(G.stylist.star||10):0))*(G.stylist.tip||1)+(dried?G.stylist.dryTip||0:0))*boost);G.tips+=tip;G.scores.push(stars);paintHud();
  stat('client',{day:G.day,id:G.c.id,style:G.c.style,kind:G.c.quick?(G.c.tangle?'tangle':G.c.flat?'flat':'walk'):G.c.bal?'balayage':G.c.color?'foils':G.c.root?'root':G.c.iron?'iron':G.c.wetset?'wetset':'regular',stylist:G.stylist.id,stars,total,tip,cut,wash:sh,dry:dr,curl:curl,snaps:curl==null?null:CI.locks.filter(q=>q.state==='broke').length});
  G.stage='result';paintSteps();$('finish').hidden=true;
  setMood(stars>=4?'happy':stars===3?'calm':'sad');
  if(stars>=3){tone(659,.15,.12);tone(880,.15,.12,.1);tone(1175,.3,.12,.2)}else tone(220,.35,.14);
  const line=G.c.root&&F.score<70?'This color does not match my ends at all!':{5:'I look incredible. Noggins for life!',4:'Love it. Really nice work.',3:'It is fine. Close to what I asked for.',2:'Hmm. That is not quite what I asked for.',1:'What did you do to my hair?!'}[stars];
  const S=$('sheet');S.hidden=false;
- S.innerHTML=`<div class="head"><img class="who" alt="${G.stylist.name}" src="${URL_['stylist_'+G.stylist.id]}"><div><div class="stars" role="img" aria-label="${stars} of 5 stars">${Array.from({length:5},(_,i)=>`<img alt="" class="${i<stars?'':'off'}" src="${URL_[i<stars?'star_filled':'star_empty']}">`).join('')}${stars===5?`<img class="spark" alt="" src="${URL_.five_star_sparkle}">`:''}</div><h2 style="margin-top:6px">${G.c.name} tips $${tip}</h2></div></div><p>"${line}"</p>
+ S.innerHTML=`<div class="head"><img class="who" alt="${G.stylist.name}" src="${URL_['stylist_'+G.stylist.id]}"><div><div class="stars" role="img" aria-label="${stars} of 5 stars">${Array.from({length:5},(_,i)=>`<img alt="" class="${i<stars?'':'off'}" src="${URL_[i<stars?'star_filled':'star_empty']}">`).join('')}${stars===5?`<img class="spark" alt="" src="${URL_.five_star_sparkle}">`:''}</div><h2 style="margin-top:6px">${G.c.name} tips $${tip}</h2>${boost>1?`<div class="boost">Includes today's +${Math.round(boost*100-100)}% tip boost</div>`:''}</div></div><p>"${line}"</p>
  <div class="pair"><figure><canvas id="m1"></canvas>Asked for</figure><figure><canvas id="m2"></canvas>You gave ${flat||G.c.male?'him':'her'}</figure></div>
  <div class="rows"${curl==null?'':' style="grid-template-columns:repeat(4,1fr)"'}>${flat?`<div></div><div><b>${cut}</b>${G.c.flat?(G.c.talk?'Mohawk':'Square'):'Cut'}</div>`:tang?`<div><b>${KN.comb}</b>Detangle</div><div><b>${KN.cond}</b>Condition</div><div><b>${cut}</b>Cut</div>`:col?`<div><b>${F.score}</b>${G.c.root?'Color':G.c.bal?'Balayage':'Foils'}</div><div><b>${F.pullScore}</b>${G.c.root?'Application':'Color'}</div><div><b>${cut}</b>Cut</div>`:`<div><b>${sh}</b>Shampoo</div><div><b>${dr}</b>Dry</div><div><b>${cut}</b>Cut</div>`}${curl==null?'':`<div><b>${curl}</b>Curl</div>`}</div>
  <button class="go" id="next">${G.after?'Play again':G.c.quick?'Close the salon':'Next client'}</button>`;
@@ -1003,11 +1004,11 @@ function endDay(){
   const row={first:tidyName(f),last:tidyName(l).slice(0,1),tips:G.tips,rating:Math.round(all*10)/10,stylists:DAYS.map((_,i)=>(G.picks&&G.picks[i])||G.stylist.id)};
   try{const id=await lbPost(row);stat('posted',{rank_tips:row.tips});G.live=false;$('sheet').hidden=true;showFront();showBoard(id)}catch(err){$('lb-post').disabled=false;$('lb-err').textContent='Could not post the score. Check your connection and try again.'}}}
 function dayUp(){
- clearTimeout(G.dayT);$('sheet').hidden=true;const d=$('dayup'),n=G.day+1;$('dayup-img').src=URL_['day'+(n+1)];$('dayup-img').alt='Day '+(n+1);d.querySelector('p').textContent=['','New clients. New cuts.','Foils. Tangles. New faces.','Balayage and a mohawk.','The big one. Everything, all day.'][n]||'New clients. New cuts.';d.hidden=false;tone(523,.16,.12);tone(659,.16,.12,.13);tone(784,.16,.12,.26);tone(1047,.4,.14,.4);
+ clearTimeout(G.dayT);$('sheet').hidden=true;const d=$('dayup'),n=G.day+1;$('dayup-img').src=URL_['day'+(n+1)];$('dayup-img').alt='Day '+(n+1);d.querySelector('p').textContent=['','New clients. New cuts.','Foils. Tangles. New faces.','Balayage and a mohawk.','The big one. Tip boost: +40% all day!'][n]||'New clients. New cuts.';d.hidden=false;tone(523,.16,.12);tone(659,.16,.12,.13);tone(784,.16,.12,.26);tone(1047,.4,.14,.4);
  G.dayT=setTimeout(()=>{d.hidden=true;showPick(n)},2600)}
 function showPick(day=0){
  G.pickDay=day;clearTimeout(G.dayT);$('dayup').hidden=true;$('mix').hidden=true;up();stopRing();$('ring').hidden=true;$('book').hidden=true;$('coffee').hidden=true;B.on=false;$('confirm').hidden=true;$('sheet').hidden=true;G.stage='pick';$('pick').hidden=false;
- const b=+store.get('cc-best')||0;document.querySelector('#pick .sub').textContent=day?`Pick your stylist for Day ${day+1}`:'Pick your Noggins stylist';$('best').textContent=day?`$${G.tips} in tips so far`:b?`Best total: $${b} in tips`:'Five days. One Noggins chair. Shampoo, dry, cut.'}
+ const b=+store.get('cc-best')||0;document.querySelector('#pick .sub').innerHTML=day?`Pick your stylist for Day ${day+1}`+(DAYS[day].boost?`<br><span class="boost" style="font-size:15px;margin-top:6px">+${Math.round(DAYS[day].boost*100-100)}% tip boost today!</span>`:''):'Pick your Noggins stylist';$('best').textContent=day?`$${G.tips} in tips so far`:b?`Best total: $${b} in tips`:'Five days. One Noggins chair. Shampoo, dry, cut.'}
 $('cards').innerHTML=STYLISTS.map((s,i)=>`<button class="card" data-i="${i}"><img alt="" src="${URL_['stylist_'+s.id]}"><div><b>${s.name}</b><em>${s.perk}</em><span>${s.desc}</span></div></button>`).join('');
 $('cards').addEventListener('click',e=>{
  const b=e.target.closest('.card');if(!b)return;audioOn();
@@ -1022,14 +1023,15 @@ const F={i:0,t:0,y:0,wait:0,placed:[],score:0,pullScore:0};
 // The running order of a day: color clients drop in between the regulars and come back once their processing time
 // has passed (or after the regulars), then the walk-in. Lily's and Jade's games are events after a number of clients.
 const LILY_GAMES=['book','restock','fold'];
-function daySides(d){
- const D=DAYS[d],total=D.clients.length+D.colors.length*2+(D.walk?1:0),pick=()=>1+rnd(Math.max(1,total-2));
+function daySides(d,cols){
+ const D=DAYS[d],total=D.clients.length+cols.length*2+(D.walk?1:0),pick=()=>1+rnd(Math.max(1,total-2));
  const lunch={g:'coffee',after:Math.max(1,Math.round(total/2))};   // the coffee run lunch break, halfway through every day
- if(D.sides){const at=shuffle(Array.from({length:total-1},(_,i)=>i+1)).slice(0,D.sides.length).sort((a,b)=>a-b);return[lunch,...shuffle(D.sides.slice()).map((g,i)=>({g,after:at[i]}))]}
+ if(D.sides){const sides=shuffle(D.sides.slice()).slice(0,D.pickSides||D.sides.length),at=shuffle(Array.from({length:total-1},(_,i)=>i+1)).slice(0,sides.length).sort((a,b)=>a-b);return[lunch,...sides.map((g,i)=>({g,after:at[i]}))]}
  return[lunch,{g:LILY_DAYS[d]||'book',after:pick()},{g:D.jade||'sweep',after:Infinity}]}
 function startDay(d){
- G.curlId=!G.curlDays||G.curlDays.includes(d)?curlPick(d):null;
- Object.assign(G,{day:d,done:0,served:0,colorQ:DAYS[d].colors.slice(),back:[],walked:false,over:null,idx:0,dayTips:G.tips,dayScores:G.scores.length,sideQ:daySides(d)});
+ const D=DAYS[d],cols=D.pickColors?shuffle(D.colors.slice()).slice(0,D.pickColors).sort((a,b)=>a.at-b.at):D.colors.slice();
+ G.curlId=!G.curlDays||G.curlDays.includes(d)?curlPick(d,cols):null;
+ Object.assign(G,{day:d,done:0,served:0,colorQ:cols.slice(),back:[],walked:false,over:null,idx:0,dayTips:G.tips,dayScores:G.scores.length,sideQ:daySides(d,cols)});
  nextUp()}
 function runSide(g){G.over=null;G.side=g;if(LILY_GAMES.includes(g)){G.lilyGame=g;ringPhone()}else({sweep:sweepIntro,tear:tearIntro,dish:dishIntro,coffee:coffeeIntro})[g]()}
 // after each client: a side game if one is due, otherwise the next client
@@ -1250,10 +1252,10 @@ const CI={locks:[],k:0,hold:false,heat:0,score:0,say:'',sayT:0,wait:0};
 const CURL_LOCKS=6,CURL_LO=.6,CURL_HI=.85;
 const curlTime=()=>G.stylist&&G.stylist.cool?2.9:2.2;   // seconds from cold to snapping; Tamarah's iron heats more gently
 // one client a day asks for curls: never the flat iron or wet set clients, walk-ins, men's cuts, or cuts too short to curl
-function curlPick(d){
+function curlPick(d,cols){
  const D=DAYS[d],minLen=st=>{let m=9;for(let x=-1.3;x<=1.3;x+=.1)m=Math.min(m,STYLES[st].f(x));return m};
  const ok=c=>!c.iron&&!c.wetset&&!c.flat&&!c.kid&&!c.quick&&!c.tangle&&!c.noBack&&!c.talk&&STYLES[c.style].f&&minLen(c.style)>=.95;
- const pool=[...D.clients,...D.colors.map(e=>e.c)].filter(ok);return pool.length?pool[rnd(pool.length)].id:null}
+ const pool=[...D.clients,...(cols||D.colors).map(e=>e.c)].filter(ok);return pool.length?pool[rnd(pool.length)].id:null}
 function curlBuild(){
  const h=G.hair.front.filter(s=>s.t>.42),mid=s=>{pt(s,Math.round(s.t*(N-1)*.6),SP);return SP[0]},used=new Set();
  for(const s of G.hair.all){s.ring=0;s.r0=1}
