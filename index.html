@@ -1908,7 +1908,7 @@ function dishUpdate(dt,moving){
  const it=DS.cur;
  if(it&&DS.anim<0&&Pt.down&&moving&&go){
   const fx=(Pt.x-g.cx)/g.S,fy=(Pt.y-g.cy)/g.S;let any=false;
-  for(const b of it.blobs){if(b.hp<=0)continue;if(Math.hypot(b.x-fx,b.y-fy)<.24){b.hp=Math.max(0,b.hp-dt*3.4);any=true}}
+  for(const b of it.blobs){if(b.hp<=0)continue;if(Math.hypot(b.x-fx,b.y-fy)<.27){b.hp=Math.max(0,b.hp-dt*4.2);any=true}   /* a slightly bigger sponge that scrubs about a quarter faster */}
   if(any&&Math.random()<dt*4)burst(1500,.04,.05,'bandpass');
   if(DS.bub.length<70&&Math.random()<dt*30)DS.bub.push({x:Pt.x+(Math.random()-.5)*40,y:Pt.y+(Math.random()-.5)*24,r:3+Math.random()*6,v:-20-Math.random()*30,life:1})}
  for(const b of DS.bub){b.life-=dt*1.2;b.y+=b.v*dt}DS.bub=DS.bub.filter(b=>b.life>0);
