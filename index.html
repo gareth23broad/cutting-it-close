@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#17181A"><style>html,body{margin:0;padding:0}</style></head><body><title>Cutting It Close</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Cutting It Close"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"><link rel="manifest" href="manifest.json"><meta name="description" content="Five days in the Noggins chair: cut, color and curl your way to the top of the leaderboard."><meta name="theme-color" content="#17181A"><style>html,body{margin:0;padding:0}</style></head><body><title>Cutting It Close</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Josefin+Sans:wght@600;700&display=swap">
@@ -210,6 +210,9 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .post input{font:600 16px Inter,system-ui,sans-serif;padding:11px 12px;border-radius:12px;border:2px solid var(--line);background:#fff;color:var(--ink);width:100%;box-sizing:border-box}
 .post .err{margin:0;color:#c8302a;font-weight:700;font-size:14px;min-height:1.2em}
 .post .skip{background:none;border:0;color:#1B1C1E99;font:700 15px Inter,system-ui,sans-serif;padding:6px}
+.fr-row{display:grid;grid-template-columns:1fr auto;gap:10px}
+#fr-share{border:0;border-radius:999px;width:52px;background:#17181Ae0;color:#FFF8F4;display:grid;place-items:center}
+#fr-copied{margin:0;text-align:center;color:#FFF8F4;font:700 14px Inter,system-ui,sans-serif}
 #fr-board small{background:#4FAA3B;color:#fff;border-radius:999px;padding:3px 8px;font-size:11px;letter-spacing:.04em}
 .screen{position:absolute;inset:0;z-index:5;background:var(--wall);overflow-y:auto;
   padding:clamp(14px,3vh,32px) max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:9px}
@@ -330,7 +333,7 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
   <section id="sheet" hidden></section>
   <section id="confirm" hidden><div><h2 id="confirm-h">Start a new game?</h2><p id="confirm-text"></p><button class="go" id="stay">Keep playing</button><button id="leave">Main menu</button></div></section>
   <div id="load"><img id="load-img" alt="Cutting It Close is loading"></div>
-  <section id="front" hidden><canvas id="front-cv"></canvas><div class="fr-btns"><button class="go" id="fr-continue" hidden>CONTINUE</button><button class="go" id="fr-play">PLAY</button><button id="fr-board">LEADERBOARD</button></div></section>
+  <section id="front" hidden><canvas id="front-cv"></canvas><div class="fr-btns"><button class="go" id="fr-continue" hidden>CONTINUE</button><button class="go" id="fr-play">PLAY</button><div class="fr-row"><button id="fr-board">LEADERBOARD</button><button id="fr-share" aria-label="Share the game"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M8 10H6.5A1.5 1.5 0 0 0 5 11.5v8A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5H16"/></svg></button></div><p id="fr-copied" hidden>Link copied!</p></div></section>
   <section id="board" hidden><div class="lb"><h2>Leaderboard</h2><p class="lb-sub">Top five-day totals at Noggins</p><ol id="lb-list"></ol><button class="go" id="lb-close">Back</button></div></section>
   <section id="pick" class="screen">
     <h1 class="logo"><img id="title" alt="Cutting It Close"></h1>
@@ -2245,6 +2248,11 @@ async function showBoard(me){
  const sty=id=>{const s=STYLISTS.find(x=>x.id===id);return s?`<img alt="${s.name}" title="${s.name}" src="${URL_['stylist_'+s.id]}">`:''};
  L.innerHTML=rows.map((r,i)=>`<li class="${r.id===me?'me':''}"><span class="rk">${i+1}</span><div style="min-width:0"><div class="nm">${escH(r.first)} ${escH(r.last)}</div><div class="sty" aria-label="Stylists by day">${(r.stylists||[]).map(sty).join('')}</div></div><div class="sc"><span class="tp">$${Number(r.tips)|0}</span><span class="st"><b>&#9733;</b> ${Number(r.rating).toFixed(1)}</span></div></li>`).join('');
  const m=L.querySelector('.me');if(m)m.scrollIntoView({block:'center'})}
+// Share: the phone's own share sheet where there is one, otherwise copy the link
+const SHARE_URL='https://gareth23broad.github.io/cutting-it-close/';
+$('fr-share').onclick=async()=>{audioOn();const d={title:'Cutting It Close',text:'Can you survive five days in the Noggins chair? Cut, color and curl your way to the top of the leaderboard.',url:SHARE_URL};stat('board_view',{share:1});
+ if(navigator.share){try{await navigator.share(d)}catch(e){}return}
+ try{await navigator.clipboard.writeText(SHARE_URL);const m=$('fr-copied');m.hidden=false;setTimeout(()=>m.hidden=true,1800)}catch(e){prompt('Copy this link:',SHARE_URL)}};
 $('fr-board').onclick=()=>{audioOn();showBoard();stat('board_view',{})};
 $('lb-close').onclick=()=>{$('board').hidden=true};
 $('fr-continue').onclick=()=>{audioOn();hideFront()};
