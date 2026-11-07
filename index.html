@@ -156,9 +156,9 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 #toast.show.quick{animation-duration:1.25s}
 @keyframes popfade{0%{opacity:0}8%,86%{opacity:1}100%{opacity:0}}
 @keyframes pop{0%{opacity:0;transform:scale(.6) rotate(-5deg)}18%{opacity:1;transform:scale(1.08) rotate(-3deg)}30%{transform:scale(1) rotate(-3deg)}75%{opacity:1}100%{opacity:0;transform:scale(1) rotate(-3deg)}}
-#foot{padding:12px max(16px,env(safe-area-inset-right,0px)) calc(26px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--paper);display:grid;gap:8px;min-height:92px;align-content:start}
-.foot-row{display:flex;align-items:center;gap:12px}
-#hint{flex:1;min-width:0;font-size:17px;line-height:1.25;transform-origin:center}
+#foot{flex:none;box-sizing:border-box;height:calc(130px + env(safe-area-inset-bottom,0px));padding:12px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--paper);display:grid;gap:8px;grid-template-rows:1fr auto;align-content:stretch;overflow:hidden}   /* a fixed height, so the play area above never changes size mid-game */
+.foot-row{display:flex;align-items:center;gap:12px;min-height:0}
+#hint{flex:1;min-width:0;font-size:17px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.25;transform-origin:center}
 #foot.fresh{animation:footflash .8s ease-out,footpulse 1.8s ease-in-out .8s 3}
 #foot.fresh #hint{animation:hintin .5s cubic-bezier(.2,1.6,.4,1),hintbeat 1.8s ease-in-out .8s 3}
 @keyframes footflash{0%,30%{background:#dff2d8}100%{background:var(--paper)}}
@@ -626,7 +626,7 @@ function sizeUp(){
  if(!IMG.salon_cape)return;
  const r=$('stage').getBoundingClientRect();W=r.width;H=r.height;dpr=Math.min(devicePixelRatio||1,2.5);
  cv.width=W*dpr;cv.height=H*dpr;
- U=Math.min(W/3.9,H/5.2);hx=W/2;hy=U*(G.c&&G.c.flat?2.42:2.02);rcFree();
+ U=Math.min(W/3.9,H/4.9);hx=W/2;hy=U*(G.c&&G.c.flat?2.42:2.02);rcFree();
  // full-screen backgrounds are only redrawn when the screen changes; iPhones blank canvases if too many pile up
  const bgId=[W,H,dpr,hy].join();if(bgId===bgKey)return;bgKey=bgId;
  for(const c of[bg,bgWash,bgFloor,bgTear])if(c)c.width=0;
@@ -2381,6 +2381,9 @@ function frame(now){
  washMix=clamp(washMix+(G.stage==='shampoo'||G.stage==='rinse'||G.stage==='cond'||G.stage==='soak'?dt:-dt)/.4,0,1);
  draw();requestAnimationFrame(frame)}
 addEventListener('resize',()=>{sizeUp()});
+// the play area can change size without the window changing (the top bar or the instructions growing): redraw at the new size at once, so nothing is ever drawn stretched
+if(window.ResizeObserver)new ResizeObserver(()=>{const r=$('stage').getBoundingClientRect();if(Math.abs(r.width-W)>.5||Math.abs(r.height-H)>.5)sizeUp()}).observe($('stage'));
+if(window.ResizeObserver){let rq=0;new ResizeObserver(()=>{cancelAnimationFrame(rq);rq=requestAnimationFrame(()=>sizeUp())}).observe($('stage'))}   // the picture always matches the play area: never stretched or squashed
 /* ---------- Anonymous play statistics, so we can see how the game is played and balance it ----------
    No names, no accounts, no cookies: just a random id for each game, the kind of device, and what happened.
    Only sent from the live website, never from test pages or local copies. */
