@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Cutting It Close"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"><link rel="manifest" href="manifest.json"><meta name="description" content="Five days in the Noggins chair: cut, color and curl your way to the top of the leaderboard."><meta name="theme-color" content="#17181A"><style>html,body{margin:0;padding:0}</style></head><body><title>Cutting It Close</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Cutting It Close"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"><link rel="manifest" href="manifest.json"><meta name="description" content="Five days in the Noggins chair: cut, color and curl your way to the top of the leaderboard."><meta name="theme-color" content="#17181A"><style>html,body{margin:0;padding:0}</style></head><body><title>Cutting It Close</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Josefin+Sans:wght@600;700&display=swap">
@@ -12,7 +12,7 @@
   color-scheme:light;
 }
 [hidden]{display:none!important}
-html{box-sizing:border-box;height:100%;background:var(--wall)}
+html{box-sizing:border-box;height:100%;background:var(--wall);touch-action:pan-x pan-y}   /* no pinch or double-tap zoom; lists can still scroll */
 *,*::before,*::after{box-sizing:inherit}
 body{height:100%;margin:0;overflow:hidden;background:var(--wall);color:var(--ink);font-family:var(--body);font-weight:800;
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
@@ -877,7 +877,13 @@ stage.addEventListener('pointermove',e=>{
 const up=()=>{Pt.down=false;setLoop('water',0);setLoop('dryer',0)};
 stage.addEventListener('pointerup',()=>{up();if(G.stage==='curl')curlUp();if(G.stage==='tear'&&TR.cur)tearLift();if(G.stage==='restock')rsDrop();if(G.stage==='bsec'&&BL.drag)balPlace();if(G.stage==='bpaint'&&BL.foil)balFoilDrop();if(G.stage==='fold')foldSwipe(Pt.x-FD.sx,Pt.y-FD.sy)});stage.addEventListener('pointercancel',()=>{up();if(G.stage==='curl')curlUp();TR.cur=null;BL.drag=null;BL.foil=null;if(RS.drag){RS.slots[RS.drag.i]=RS.drag.b;RS.drag=null}});
 stage.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
-document.addEventListener('gesturestart',e=>e.preventDefault());
+// iPhone pinch-zoom: Safari ignores the page's zoom settings, so stop two-finger gestures and double-tap zoom directly
+for(const g of['gesturestart','gesturechange','gestureend'])document.addEventListener(g,e=>e.preventDefault(),{passive:false});
+// iPhone Safari ignores most zoom settings, so a two-finger touch anywhere is stopped before it can pinch-zoom the page
+document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
+document.addEventListener('touchmove',e=>{if(e.touches.length>1||(e.scale!=null&&e.scale!==1))e.preventDefault()},{passive:false});
+document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
+let lastTap=0;document.addEventListener('touchend',e=>{const t=performance.now();if(t-lastTap<300&&!e.target.closest('input,textarea'))e.preventDefault();lastTap=t},{passive:false});
 $('finish').onclick=finishCut;
 $('menu').onclick=()=>{audioOn();showFront()};   // the front page; Continue brings you straight back
 $('stay').onclick=()=>{$('confirm').hidden=true};
