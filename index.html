@@ -2232,7 +2232,7 @@ function drawFront(){
   c.fillStyle='#17181A';c.beginPath();c.moveTo(px-pw/2,py-pw*.55);c.lineTo(px+pw/2,py-pw*.55);c.lineTo(px+pw*.4,py);c.lineTo(px-pw*.4,py);c.closePath();c.fill()}
  const fade=c.createLinearGradient(0,h*.78,0,h);fade.addColorStop(0,'#00000000');fade.addColorStop(1,'#000000a0');c.fillStyle=fade;c.fillRect(0,h*.78,w,h*.22)}
 function showFront(){
- G.paused=true;up();if(ringT)stopRing();$('confirm').hidden=true;$('fr-continue').hidden=!G.live;$('front').hidden=false;drawFront()}
+ lbPrefetch();G.paused=true;up();if(ringT)stopRing();$('confirm').hidden=true;$('fr-continue').hidden=!G.live;$('front').hidden=false;drawFront()}
 function hideFront(){$('front').hidden=true;G.paused=false;if(!$('ring').hidden&&!ringT){trill();ringT=setInterval(trill,1300)}}
 function newGame(){$('confirm').hidden=true;$('front').hidden=true;G.paused=false;G.live=false;showPick(0)}
 
@@ -2264,13 +2264,20 @@ function nameProblem(f,l){
  if(BAD_ANY.some(w=>{w=w.replace(/ /g,'');return joined.includes(w)||squash.includes(w)})||words.some(w=>BAD_WORD.includes(w)||BAD_WORD.includes(w.replace(/(.)\1+/g,'$1'))))return'Please pick a different name for the board.';
  return''}
 const escH=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+// The board opens straight away on the scores it last saw, then quietly updates; "Loading" only shows if the wait is noticeable
+let LB_ROWS=null;
+const lbMsg=t=>`<li class="lb-msg" style="display:block;border:0;background:none">${t}</li>`;
+function lbPrefetch(){lbGet().then(r=>{LB_ROWS=r}).catch(()=>{})}
 async function showBoard(me){
- const L=$('lb-list');$('board').hidden=false;L.innerHTML='<li class="lb-msg" style="display:block;border:0;background:none">Loading the board...</li>';
- let rows;try{rows=await lbGet()}catch(e){L.innerHTML='<li class="lb-msg" style="display:block;border:0;background:none">Could not load the leaderboard. Check your connection.</li>';return}
- if(!rows.length){L.innerHTML='<li class="lb-msg" style="display:block;border:0;background:none">No scores yet. Finish all five days to be first!</li>';return}
+ const L=$('lb-list');$('board').hidden=false;
  const sty=id=>{const s=STYLISTS.find(x=>x.id===id);return s?`<img alt="${s.name}" title="${s.name}" src="${URL_['stylist_'+s.id]}">`:''};
- L.innerHTML=rows.map((r,i)=>`<li class="${r.id===me?'me':''}"><span class="rk">${i+1}</span><div style="min-width:0"><div class="nm">${escH(r.first)} ${escH(String(r.last||'').slice(0,1))}.</div><div class="sty" aria-label="Stylists by day">${(r.stylists||[]).map(sty).join('')}</div></div><div class="sc"><span class="tp">$${Number(r.tips)|0}</span><span class="st"><b>&#9733;</b> ${Number(r.rating).toFixed(1)}</span></div></li>`).join('');
- const m=L.querySelector('.me');if(m)m.scrollIntoView({block:'center'})}
+ const paint=rows=>{if(!rows.length){L.innerHTML=lbMsg('No scores yet. Finish all five days to be first!');return}
+  L.innerHTML=rows.map((r,i)=>`<li class="${r.id===me?'me':''}"><span class="rk">${i+1}</span><div style="min-width:0"><div class="nm">${escH(r.first)} ${escH(String(r.last||'').slice(0,1))}.</div><div class="sty" aria-label="Stylists by day">${(r.stylists||[]).map(sty).join('')}</div></div><div class="sc"><span class="tp">$${Number(r.tips)|0}</span><span class="st"><b>&#9733;</b> ${Number(r.rating).toFixed(1)}</span></div></li>`).join('');
+  const m=L.querySelector('.me');if(m)m.scrollIntoView({block:'center'})};
+ if(LB_ROWS&&me==null)paint(LB_ROWS);else L.innerHTML='';
+ const slow=setTimeout(()=>{if(!L.children.length)L.innerHTML=lbMsg('Loading the board...')},600);
+ try{LB_ROWS=await lbGet();clearTimeout(slow);paint(LB_ROWS)}catch(e){clearTimeout(slow);if(!LB_ROWS)L.innerHTML=lbMsg('Could not load the leaderboard. Check your connection.')}}
+
 // Share: the phone's own share sheet where there is one, otherwise copy the link
 const SHARE_URL='https://play.nogginsorganicsalon.com/';
 $('fr-share').onclick=async()=>{audioOn();const d={title:'Cutting It Close',text:'Can you survive five days in the Noggins chair? Cut, color and curl your way to the top of the leaderboard.',url:SHARE_URL};stat('board_view',{share:1});
