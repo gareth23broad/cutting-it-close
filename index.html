@@ -1166,7 +1166,7 @@ const balGlideX=()=>{const q=BL.secs[BL.k];return q.tx+.62*Math.sin(BL.glideT)};
 // bleach as long as you like; Finish brings out the foil (needs at least some bleach on the lengths)
 function balPaintDone(){
  const q=BL.secs[BL.k];if(balCov(q)<BAL_READY){BL.say='Bleach a bit more first';BL.sayT=1.2;tone(247,.1,.07);return}
- BL.glideT=0;setStage('bfoil')}
+ BL.glideT=0;setStage('bfoil');G.lock=performance.now()+150}
 // a tap lays the gliding shiny foil
 function balTapUp(){
  const d=BL.down;BL.down=null;if(!d||G.stage!=='bfoil')return;
@@ -1188,7 +1188,7 @@ function balUpdate(dt,fx,fy,moving){
   if(go)BL.swingT+=dt*balSwingSpeed();q.bx=(q.tx-q.mx)*1.35*(.5-.5*Math.cos(BL.swingT));q.ss.forEach(s=>s.bx=q.bx);   // swings out past its foil back and back again
   meter(BL.k/BAL_N,`Foil ${BL.k+1} of ${BAL_N}`,'');return}
  // painting: bleach only counts from the mid-lengths down; the roots stay clear
- if(G.stage==='bfoil'){if(go)BL.glideT+=dt*1.9;meter(1,'Lay the foil','');return}
+ if(G.stage==='bfoil'){BL.glideT+=dt*1.9;meter(1,'Lay the foil','');return}
  if(Pt.down&&!BL.foil&&moving&&go){
   const hit=new Set(),rhit=new Set();
   for(const s of q.ss)for(let i=1;i<N;i++){const u=i/(N-1);if(u>s.t)break;pt(s,i,SP);if(Math.hypot(SP[0]-fx,SP[1]-fy)>.24)continue;
@@ -1209,6 +1209,8 @@ function drawBal(){
  const[y0,y1]=balSpan(q);
  // the dull back of a foil, laid out beside her; the section is pulled across onto it
  // a soft green pulse while the held section is over the foil back: brighter once it would land dead center
+ if(st==='bfoil'){const err=Math.abs(balGlideX()-q.tx);if(err<=BAL_W*.9){const T=performance.now()/1000,k=err<=.05?1:.55,a=(.36+.2*Math.sin(T*9))*k,g=.08+.05*k;   // green halo while the shiny foil is over the section
+  ctx.fillStyle=`rgba(127,216,107,${a.toFixed(2)})`;ctx.beginPath();ctx.roundRect(q.tx-BAL_W/2-g,y0-g,BAL_W+g*2,y1-y0+g*2,.05+g);ctx.fill()}}
  if(st==='bsec'){const err=Math.abs(q.mx+q.bx-q.tx),tl=balTol();if(err<=tl.miss){const T=performance.now()/1000,k=err<=tl.full+.02?1:.55,a=(.36+.2*Math.sin(T*9))*k,g=.08+.05*k;
   ctx.fillStyle=`rgba(127,216,107,${a.toFixed(2)})`;ctx.beginPath();ctx.roundRect(q.tx-BAL_W/2-g,y0-g,BAL_W+g*2,y1-y0+g*2,.05+g);ctx.fill()}}
  ctx.fillStyle='#8E959A';ctx.strokeStyle='#1B1C1E';ctx.lineWidth=.03;ctx.beginPath();ctx.roundRect(q.tx-BAL_W/2,y0,BAL_W,y1-y0,.05);ctx.fill();ctx.stroke();
@@ -1238,9 +1240,13 @@ function drawBalTop(){
  const st=G.stage;if(!G.c.bal)return;
  if(st==='bfoil'){
   const q=BL.secs[BL.k];
-  {const[y0,y1]=balSpan(q),gx=balGlideX(),on=Math.abs(gx-q.tx)<=.05;longPx(hx+gx*U,hy+(y0+y1)/2*U,BAL_W*U,(y1-y0)*U,'#eef2f4',on?1:0,.9)}}   // the shiny foil glides back and forth over the section
+  {const[y0,y1]=balSpan(q),gx=balGlideX(),on=Math.abs(gx-q.tx)<=.05;longPx(hx+gx*U,hy+(y0+y1)/2*U,BAL_W*U,(y1-y0)*U,'#eef2f4',0,.9)}}   // the shiny foil glides back and forth over the section
  if(st==='bpaint'&&Pt.down)drawBrush(Pt.x,Pt.y,'#FFFFFF');
- if(BL.sayT>0&&(st==='bsec'||st==='bpaint'||st==='bfoil')){ctx.globalAlpha=clamp(BL.sayT*2,0,1);ctx.font='800 20px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.lineWidth=5;ctx.strokeStyle='#17181A';ctx.strokeText(BL.say,hx,hy-1.75*U);ctx.fillStyle=BL.say==='Neat section!'?'#7FD86B':'#FFF8F4';ctx.fillText(BL.say,hx,hy-1.75*U);ctx.globalAlpha=1}}
+ if(BL.sayT>0&&(st==='bsec'||st==='bpaint'||st==='bfoil')){   // the verdict in a solid pill under her chin, like the curling iron's
+  const good=/Neat|Perfect/.test(BL.say),bad=/Missed|first|more/.test(BL.say);
+  ctx.save();ctx.font=`800 ${Math.round(U*.24)}px ${getComputedStyle(document.body).fontFamily}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha=clamp(BL.sayT*2,0,1);
+  const Y=hy+U*1.3,w=ctx.measureText(BL.say).width+U*.5,h=U*.42;ctx.fillStyle=good?'#3D8F2C':bad?'#C8302A':'#F1EDE6';ctx.strokeStyle='#1B1C1E';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(hx-w/2,Y-h/2,w,h,h/2);ctx.fill();ctx.stroke();
+  ctx.fillStyle=good||bad?'#fff':'#1B1C1E';ctx.fillText(BL.say,hx,Y+1);ctx.restore()}}
 
 /* ---------- Rhys, the mohawk walk-in: he never stops talking, and his head leans as he does ---------- */
 const TK={a:0,on:false,t:1.2,dir:1,line:'',blip:0};
