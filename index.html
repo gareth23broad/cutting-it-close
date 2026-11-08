@@ -754,7 +754,7 @@ const WASH=['shampoo','rinse'],stepsOf=c=>{const l=stepsBase(c);return c&&c.curl
  if(c.flat)return[['Clippers',['cut']]];
  if(c.kid)return[['Cut',['cut']]];
  if(c.tangle)return[['Detangle',['tangle']],['Condition',['cond','soak']],['Rinse',['rinse']],['Dry',['dry']],['Cut',['cut']]];
- if(c.bal)return[['Balayage',['bsec','bpaint']],['Pull',['wait','back','pull']],['Wash',WASH],['Dry',['dry']],['Cut',['cut']]];
+ if(c.bal)return[['Balayage',['bsec','bpaint','bfoil']],['Pull',['wait','back','pull']],['Wash',WASH],['Dry',['dry']],['Cut',['cut']]];
  if(c.color)return[['Foils',['foil']],['Pull',['wait','back','pull']],['Wash',WASH],['Dry',['dry']],['Cut',['cut']]];
  if(c.root)return[['Mix',['mix']],['Application',['paint']],['Wash',['wait','back',...WASH]],['Dry',['dry']],['Cut',['cut']]];
  if(c.iron)return[['Shampoo',['shampoo']],['Rinse',['rinse']],['Dry',['dry']],['Flat iron',['iron']],['Cut',['cut']]];
@@ -766,7 +766,8 @@ const HINT={
  cond:'Work the conditioner through her lengths and ends.',
  soak:'Hold to heat the towel, then let go in the green.',
  bsec:'Tap when the swinging section is right over the dull foil back.',
- bpaint:'Bleach down from the mid lengths, not the roots. Then tap to lay the shiny foil as it glides over.',
+ bpaint:'Bleach the lengths, not the roots. Tap Finish when you are done.',
+ bfoil:'Tap to lay the shiny foil as it glides over the section.',
  fold:'Swipe the way the arrow points to fold. Straight swipes make neat folds.',
  dish:'Scrub the color off with the sponge. Clean as many tools as you can.',
  restock:'Drag each block to the gap with its color.',
@@ -807,7 +808,7 @@ function paintHud(){
  $('who').textContent=`Day ${G.day+1} · `+(G.over?(G.over.quick?'Bonus walk-in':'Color client'):`Client ${G.idx+1} of ${regulars()}`);
  $('tips').textContent='$'+G.tips}
 function setStage(s,word){
- G.stage=s;up();G.lock=performance.now()+1200;paintSteps();$('hint').textContent=s==='cut'&&G.c.talk?'Shave both sides down to the dashed line. He keeps talking, so watch the lean!':s==='cut'&&G.c.flat?'Run the clippers along the dashed lines to square him off.':s==='cut'&&G.c.kid?'He will not sit still! Follow the moving line.':s==='soak'&&SOAK_TAP?'Tap the towel when the marker is in the green.':s==='dry'&&G.stylist.cool?'Sweep the dryer around until all the hair is dry.':HINT[s]||'';$('finish').hidden=s!=='cut'&&s!=='clip';
+ G.stage=s;up();G.lock=performance.now()+1200;paintSteps();$('hint').textContent=s==='cut'&&G.c.talk?'Shave both sides down to the dashed line. He keeps talking, so watch the lean!':s==='cut'&&G.c.flat?'Run the clippers along the dashed lines to square him off.':s==='cut'&&G.c.kid?'He will not sit still! Follow the moving line.':s==='soak'&&SOAK_TAP?'Tap the towel when the marker is in the green.':s==='dry'&&G.stylist.cool?'Sweep the dryer around until all the hair is dry.':HINT[s]||'';$('finish').hidden=s!=='cut'&&s!=='clip'&&s!=='bpaint';
  const ft=$('foot');ft.classList.remove('fresh');void ft.offsetWidth;ft.classList.add('fresh');
  if(word)toast(word);
  if(s==='rinse'||s==='dry'||s==='cut'||s==='buzz'){ding();setMood('calm')}
@@ -860,13 +861,13 @@ function cutSeg(ax,ay,bx,by){
  if(G.clips.length>110)G.clips.splice(0,G.clips.length-110);
  if(hit){G.cuts++;if(G.cutSoundAt==null||performance.now()-G.cutSoundAt>120){snipSnd();G.cutSoundAt=performance.now()}Pt.open=1}}
 stage.addEventListener('pointerdown',e=>{
- if(!['shampoo','rinse','dry','cut','foil','pull','sweep','paint','iron','gel','diffuse','tangle','cond','soak','tear','restock','bsec','bpaint','dish','fold','curl','clip'].includes(G.stage))return;
+ if(!['shampoo','rinse','dry','cut','foil','pull','sweep','paint','iron','gel','diffuse','tangle','cond','soak','tear','restock','bsec','bpaint','bfoil','dish','fold','curl','clip'].includes(G.stage))return;
  e.preventDefault();audioOn();$('foot').classList.remove('fresh');
  if(performance.now()<(G.lock||0))return; // short pause between stages: the old tool ends and a fresh touch is needed
  if(G.stage==='foil'){foilDrop();return}
  if(G.stage==='curl'){const[cx,cy]=evPos(e);curlDown(cx,cy);return}
  if(G.stage==='pull'){const[fx,fy]=evPos(e);foilPull(fx,fy);return}
- if(G.stage==='bsec'||G.stage==='bpaint'){const[bx,by]=evPos(e);balDown(bx,by)}
+ if(G.stage==='bsec'||G.stage==='bpaint'||G.stage==='bfoil'){const[bx,by]=evPos(e);balDown(bx,by)}
  if(G.stage==='soak'&&SOAK_TAP){const[tx,ty]=evPos(e);soakTap(tx,ty);return}
  if(G.stage==='restock'){const[rx,ry]=evPos(e);Pt.x=rx;Pt.y=ry;rsPick(rx,ry)}
 try{stage.setPointerCapture(e.pointerId)}catch(_){}
@@ -880,7 +881,7 @@ stage.addEventListener('pointermove',e=>{
   if(G.stage==='tear'&&TR.cur)tearMove(x,y);
   Pt.dist=(Pt.dist||0)+d;Pt.x=x;Pt.y=y}});
 const up=()=>{Pt.down=false;setLoop('water',0);setLoop('dryer',0)};
-stage.addEventListener('pointerup',()=>{up();if(G.stage==='curl')curlUp();if(G.stage==='tear'&&TR.cur)tearLift();if(G.stage==='restock')rsDrop();if(G.stage==='bpaint')balTapUp();if(G.stage==='fold')foldSwipe(Pt.x-FD.sx,Pt.y-FD.sy)});stage.addEventListener('pointercancel',()=>{up();if(G.stage==='curl')curlUp();TR.cur=null;BL.drag=null;BL.foil=null;if(RS.drag){RS.slots[RS.drag.i]=RS.drag.b;RS.drag=null}});
+stage.addEventListener('pointerup',()=>{up();if(G.stage==='curl')curlUp();if(G.stage==='tear'&&TR.cur)tearLift();if(G.stage==='restock')rsDrop();if(G.stage==='bfoil')balTapUp();if(G.stage==='fold')foldSwipe(Pt.x-FD.sx,Pt.y-FD.sy)});stage.addEventListener('pointercancel',()=>{up();if(G.stage==='curl')curlUp();TR.cur=null;BL.drag=null;BL.foil=null;if(RS.drag){RS.slots[RS.drag.i]=RS.drag.b;RS.drag=null}});
 stage.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
 // iPhone pinch-zoom: Safari ignores the page's zoom settings, so stop two-finger gestures and double-tap zoom directly
 for(const g of['gesturestart','gesturechange','gestureend'])document.addEventListener(g,e=>e.preventDefault(),{passive:false});
@@ -954,7 +955,7 @@ function stageUpdate(dt){
  if(st==='dish')dishUpdate(dt,moving);
  if(st==='fold')foldUpdate(dt);
  if(st==='curl')curlUpdate(dt);
- if(st==='bsec'||st==='bpaint')balUpdate(dt,fx,fy,moving);
+ if(st==='bsec'||st==='bpaint'||st==='bfoil')balUpdate(dt,fx,fy,moving);
  if(G.c.talk)talkUpdate(dt,st==='cut');
  if(st==='cut'||st==='clip'){if(G.c.flat||st==='clip')setLoop('dryer',Pt.down?.1:0);const m=cutScore();meter(m,'Match to '+STYLES[G.c.style].name,Math.round(m*100)+'%')}
  if(st==='shampoo'||st==='rinse'||st==='gel'){G.avgD=G.hair.all.reduce((a,s)=>a+s.d,0)/G.hair.all.length}
@@ -965,6 +966,7 @@ function stageUpdate(dt){
  Pt.open=Math.max(0,Pt.open-dt*7);
 }
 function finishCut(){
+ if(G.stage==='bpaint'){balPaintDone();return}
  if(G.c.lineup&&G.stage==='cut'){setStage('clip','Line him up!');return}
  if(G.c.curling&&G.stage==='cut'){curlStart();return}
  const tang=!!G.c.tangle,flat=!!G.c.quick&&!tang,cut=Math.round(cutScore()*100),sh=Math.max(0,100-20*G.eye),dr=Math.max(0,100-20*G.hot);
@@ -1152,7 +1154,7 @@ const balSwingSpeed=()=>G.stylist&&G.stylist.foil?1.7:2.1;   // Josie's sections
 function balDown(px,py){
  const q=BL.secs[BL.k];
  if(G.stage==='bsec'){balPlace();return}
- if(G.stage==='bpaint')BL.down={x:px,y:py,t:performance.now()}}
+ if(G.stage==='bfoil')BL.down={x:px,y:py,t:performance.now()}}
 // tap while the swinging section is over the dull foil back
 function balPlace(){
  const q=BL.secs[BL.k],err=Math.abs(q.mx+q.bx-q.tx),tl=balTol();
@@ -1161,11 +1163,14 @@ function balPlace(){
  BL.say=q.place>=.85?'Neat section!':q.place>=.5?'A little off':'Messy section';BL.sayT=1.2;tone(q.place>=.85?988:494,.09,.08);burst(1500,.04,.06,'bandpass');
  setStage('bpaint',BL.k?null:'Bleach it!')}
 const balGlideX=()=>{const q=BL.secs[BL.k];return q.tx+.62*Math.sin(BL.glideT)};
-// a quick tap (not a brush stroke) lays the gliding shiny foil
+// bleach as long as you like; Finish brings out the foil (needs at least some bleach on the lengths)
+function balPaintDone(){
+ const q=BL.secs[BL.k];if(balCov(q)<BAL_READY){BL.say='Bleach a bit more first';BL.sayT=1.2;tone(247,.1,.07);return}
+ BL.glideT=0;setStage('bfoil')}
+// a tap lays the gliding shiny foil
 function balTapUp(){
- const d=BL.down;BL.down=null;if(!d||G.stage!=='bpaint')return;
- if(Math.hypot(Pt.x-d.x,Pt.y-d.y)>14||performance.now()-d.t>350)return;
- const q=BL.secs[BL.k];if(balCov(q)<BAL_READY){BL.say='Bleach it first';BL.sayT=1;return}
+ const d=BL.down;BL.down=null;if(!d||G.stage!=='bfoil')return;
+ const q=BL.secs[BL.k];
  const gx=balGlideX(),err=Math.abs(gx-q.tx);
  if(err>BAL_W*.9){BL.say='Missed the section';BL.sayT=1.2;tone(247,.1,.07);return}
  const[y0,y1]=balSpan(q),acc=clamp(q.place*.4+balCov(q)*.6-Math.min(.45,.6*balRoot(q))-Math.max(0,err-.04)*2,0,1);
@@ -1183,7 +1188,7 @@ function balUpdate(dt,fx,fy,moving){
   if(go)BL.swingT+=dt*balSwingSpeed();q.bx=(q.tx-q.mx)*1.35*(.5-.5*Math.cos(BL.swingT));q.ss.forEach(s=>s.bx=q.bx);   // swings out past its foil back and back again
   meter(BL.k/BAL_N,`Foil ${BL.k+1} of ${BAL_N}`,'');return}
  // painting: bleach only counts from the mid-lengths down; the roots stay clear
- if(go&&balCov(q)>=BAL_READY)BL.glideT+=dt*1.9;
+ if(G.stage==='bfoil'){if(go)BL.glideT+=dt*1.9;meter(1,'Lay the foil','');return}
  if(Pt.down&&!BL.foil&&moving&&go){
   const hit=new Set(),rhit=new Set();
   for(const s of q.ss)for(let i=1;i<N;i++){const u=i/(N-1);if(u>s.t)break;pt(s,i,SP);if(Math.hypot(SP[0]-fx,SP[1]-fy)>.24)continue;
@@ -1192,13 +1197,13 @@ function balUpdate(dt,fx,fy,moving){
   for(const j of rhit)q.rcov[j]=Math.min(1,q.rcov[j]+dt*2.6*(G.stylist.wash||1));
   if((hit.size||rhit.size)&&Math.random()<dt*3)burst(1400,.03,.05,'bandpass');
   if(rhit.size&&BL.cool<=0){BL.cool=.9;tone(247,.12,.08);toast('Not the roots!',1)}}
- const v=balCov(q);meter(v,v>=BAL_READY?'Bleach · tap to lay the foil':'Bleach',Math.round(v*100)+'%')}
+ const v=balCov(q);meter(v,v>=BAL_READY?'Bleach · tap Finish when done':'Bleach',Math.round(v*100)+'%')}
 function strandRange(ctx,s,u0,u1,tEnd){
  u1=Math.min(u1,tEnd);if(u1<=u0)return;if(s.ring){ringStrand(ctx,s,u0*(N-1),u1*(N-1));return}const a=u0*(N-1),b=u1*(N-1);
  const at=f=>{const n=Math.min(N-2,Math.floor(f));pt(s,n,P0);pt(s,n+1,P1);const u=f-n;return[lerp(P0[0],P1[0],u),lerp(P0[1],P1[1],u)]};
  ctx.beginPath();let p=at(a);ctx.moveTo(p[0],p[1]);for(let i=Math.ceil(a);i<b;i++){pt(s,i,P0);ctx.lineTo(P0[0],P0[1])}p=at(b);ctx.lineTo(p[0],p[1]);ctx.stroke()}
 function drawBal(){
- const st=G.stage;if(!G.c.bal||(st!=='bsec'&&st!=='bpaint'))return;const q=BL.secs[BL.k];
+ const st=G.stage;if(!G.c.bal||(st!=='bsec'&&st!=='bpaint'&&st!=='bfoil'))return;const q=BL.secs[BL.k];
  ctx.save();ctx.translate(hx,hy);ctx.scale(U,U);ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=.085;
  for(const r of BL.secs)for(let j=0;j<8;j++){const c=Math.min(1,r.cov[j]);if(c<.03)continue;ctx.strokeStyle=`rgba(255,255,255,${(c*.88).toFixed(2)})`;const u0=.3+j*.0875;for(const s of r.ss)strandRange(ctx,s,u0,u0+.095,s.t)}
  const[y0,y1]=balSpan(q);
@@ -1231,11 +1236,11 @@ function longPx(X,Y,w,h,fill,glow,alpha){
 function longPacket(x,y,len,fill,glow){longPx(hx+x*U,hy+y*U,BAL_W*U,len*U,fill,glow)}
 function drawBalTop(){
  const st=G.stage;if(!G.c.bal)return;
- if(st==='bpaint'){
-  const q=BL.secs[BL.k],ready=balCov(q)>=BAL_READY;
-  if(ready){const[y0,y1]=balSpan(q),gx=balGlideX(),on=Math.abs(gx-q.tx)<=.05;longPx(hx+gx*U,hy+(y0+y1)/2*U,BAL_W*U,(y1-y0)*U,'#eef2f4',on?1:0,.9)}   // the shiny foil glides back and forth over the section
-  if(Pt.down)drawBrush(Pt.x,Pt.y,'#FFFFFF')}
- if(BL.sayT>0&&(st==='bsec'||st==='bpaint')){ctx.globalAlpha=clamp(BL.sayT*2,0,1);ctx.font='800 20px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.lineWidth=5;ctx.strokeStyle='#17181A';ctx.strokeText(BL.say,hx,hy-1.75*U);ctx.fillStyle=BL.say==='Neat section!'?'#7FD86B':'#FFF8F4';ctx.fillText(BL.say,hx,hy-1.75*U);ctx.globalAlpha=1}}
+ if(st==='bfoil'){
+  const q=BL.secs[BL.k];
+  {const[y0,y1]=balSpan(q),gx=balGlideX(),on=Math.abs(gx-q.tx)<=.05;longPx(hx+gx*U,hy+(y0+y1)/2*U,BAL_W*U,(y1-y0)*U,'#eef2f4',on?1:0,.9)}}   // the shiny foil glides back and forth over the section
+ if(st==='bpaint'&&Pt.down)drawBrush(Pt.x,Pt.y,'#FFFFFF');
+ if(BL.sayT>0&&(st==='bsec'||st==='bpaint'||st==='bfoil')){ctx.globalAlpha=clamp(BL.sayT*2,0,1);ctx.font='800 20px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.lineWidth=5;ctx.strokeStyle='#17181A';ctx.strokeText(BL.say,hx,hy-1.75*U);ctx.fillStyle=BL.say==='Neat section!'?'#7FD86B':'#FFF8F4';ctx.fillText(BL.say,hx,hy-1.75*U);ctx.globalAlpha=1}}
 
 /* ---------- Rhys, the mohawk walk-in: he never stops talking, and his head leans as he does ---------- */
 const TK={a:0,on:false,t:1.2,dir:1,line:'',blip:0};
@@ -2366,10 +2371,10 @@ function draw(){
  const T=performance.now()/1000;wx=st==='cut'&&G.c.kid?(Math.sin(T*1.9)*.1+Math.sin(T*3.3)*.05)*U:0;
  drawClient(ctx,hx+wx,hy,U,G.c,G.hair,{mood:G.mood,d:G.avgD,q:dpr,tilt:G.c.talk?TK.a:0});   // only his head leans; the cape stays put
  ctx.save();if(G.c.talk&&TK.a){const py=hy+TALK_PIVOT*U;ctx.translate(hx,py);ctx.rotate(TK.a);ctx.translate(-hx,-py)}
- if(G.c.bal&&(st==='bsec'||st==='bpaint'))drawFoils();   // placed foils first, so the new section and its foil are drawn on top
+ if(G.c.bal&&(st==='bsec'||st==='bpaint'||st==='bfoil'))drawFoils();   // placed foils first, so the new section and its foil are drawn on top
  drawBal();
- if(G.c.bal&&(st==='bsec'||st==='bpaint'))drawBalRoots();
- else if((G.c.color||G.c.bal)&&['foil','pull','wait','back','bsec','bpaint'].includes(st))drawFoils();
+ if(G.c.bal&&(st==='bsec'||st==='bpaint'||st==='bfoil'))drawBalRoots();
+ else if((G.c.color||G.c.bal)&&['foil','pull','wait','back','bsec','bpaint','bfoil'].includes(st))drawFoils();
  if(st==='paint'&&Pt.down)drawBrush(Pt.x,Pt.y);
  if(st==='shampoo'||st==='rinse'||st==='cond'||st==='soak')drawFoam();
  if(st==='tangle')drawKnots();
