@@ -765,8 +765,8 @@ const HINT={
  tangle:'Comb down through each knot, gently. Too fast and she yelps.',
  cond:'Work the conditioner through her lengths and ends.',
  soak:'Hold to heat the towel, then let go in the green.',
- bsec:'Drag the glowing section of hair onto the dull foil back.',
- bpaint:'Bleach down from the mid lengths, not the roots. Then lay the shiny foil on top.',
+ bsec:'Tap when the swinging section is right over the dull foil back.',
+ bpaint:'Bleach down from the mid lengths, not the roots. Then tap to lay the shiny foil as it glides over.',
  fold:'Swipe the way the arrow points to fold. Straight swipes make neat folds.',
  dish:'Scrub the color off with the sponge. Clean as many tools as you can.',
  restock:'Drag each block to the gap with its color.',
@@ -880,7 +880,7 @@ stage.addEventListener('pointermove',e=>{
   if(G.stage==='tear'&&TR.cur)tearMove(x,y);
   Pt.dist=(Pt.dist||0)+d;Pt.x=x;Pt.y=y}});
 const up=()=>{Pt.down=false;setLoop('water',0);setLoop('dryer',0)};
-stage.addEventListener('pointerup',()=>{up();if(G.stage==='curl')curlUp();if(G.stage==='tear'&&TR.cur)tearLift();if(G.stage==='restock')rsDrop();if(G.stage==='bsec'&&BL.drag)balPlace();if(G.stage==='bpaint'&&BL.foil)balFoilDrop();if(G.stage==='fold')foldSwipe(Pt.x-FD.sx,Pt.y-FD.sy)});stage.addEventListener('pointercancel',()=>{up();if(G.stage==='curl')curlUp();TR.cur=null;BL.drag=null;BL.foil=null;if(RS.drag){RS.slots[RS.drag.i]=RS.drag.b;RS.drag=null}});
+stage.addEventListener('pointerup',()=>{up();if(G.stage==='curl')curlUp();if(G.stage==='tear'&&TR.cur)tearLift();if(G.stage==='restock')rsDrop();if(G.stage==='bpaint')balTapUp();if(G.stage==='fold')foldSwipe(Pt.x-FD.sx,Pt.y-FD.sy)});stage.addEventListener('pointercancel',()=>{up();if(G.stage==='curl')curlUp();TR.cur=null;BL.drag=null;BL.foil=null;if(RS.drag){RS.slots[RS.drag.i]=RS.drag.b;RS.drag=null}});
 stage.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
 // iPhone pinch-zoom: Safari ignores the page's zoom settings, so stop two-finger gestures and double-tap zoom directly
 for(const g of['gesturestart','gesturechange','gestureend'])document.addEventListener(g,e=>e.preventDefault(),{passive:false});
@@ -1069,7 +1069,7 @@ function foilSheet(){
  $('foil-next').onclick=()=>{S.hidden=true;if(G.after)pullStart();else park()}}
 function pullStart(){
  // a balayage has only six foils, so they start sooner and turn a little faster to keep the pace of Nicole's fourteen
- const few=F.placed.length<8;F.placed.forEach(f=>{f.p=0;f.done=false;f.goldAt=0;f.delay=Math.random()*(few?2:7);f.rate=FOIL_RATE});   // every foil, highlights or balayage, turns at the same speed
+ const few=F.placed.length<8;F.placed.forEach(f=>{f.p=0;f.done=false;f.goldAt=0;f.delay=Math.random()*(few?2:7);f.rate=(.085+Math.random()*.03)*(few?1.45:1)});
  setMood('calm');setStage('pull','Pull the foils!');G.lock=performance.now()+2100}
 function foilPull(px,py){
  const ux=(px-hx)/U,uy=(py-hy)/U;let best=null,bd=.5;
@@ -1097,14 +1097,11 @@ function foilUpdate(dt){
  let left=0;
  for(const f of F.placed){if(f.done)continue;left++;if(performance.now()<(G.lock||0))continue;if(f.delay>0){f.delay-=dt;continue}f.p=Math.min(1.25,f.p+f.rate*dt);if(!f.goldAt&&f.p>=goldLo()){f.goldAt=performance.now();tone(1568,.07,.04)}}   // a soft chime as each foil turns gold
  meter(1-left/F.placed.length,'Foils pulled',`${F.placed.length-left} of ${F.placed.length}`)}
-const FOIL_RATE=.1;
-// silver the whole time it is processing (only a faint warm tint as it gets close), true gold only while it is ready, then quickly to red
 function foilColor(f){
- const mix=(a,b,u)=>{a=hex(a);b=hex(b);return`rgb(${a.map((v,i)=>Math.round(lerp(v,b[i],clamp(u,0,1)))).join(',')})`};
- if(G.stage==='foil'||f.p<.3)return'#d7dee3';
- if(f.p<goldLo())return mix('#d7dee3','#e6dcc2',(f.p-.3)/(goldLo()-.3));
+ if(G.stage==='foil'||f.p<.25)return'#d7dee3';
+ if(f.p<goldLo()){const a=hex('#d7dee3'),b=hex('#ffc145'),u=clamp((f.p-.25)/(goldLo()-.25),0,1);return`rgb(${a.map((v,i)=>Math.round(lerp(v,b[i],u))).join(',')})`}
  if(f.p<=goldHi())return'#ffc145';
- return mix('#ff9a3a','#e0523a',(f.p-goldHi())/.12)}
+ return'#e0523a'}
 // the moment a foil turns gold it pulses twice, then keeps a steady glow while it is ready to pull
 function foilGlow(f){if(G.stage!=='pull'||f.p<goldLo()||f.p>goldHi())return 0;const t=(performance.now()-(f.goldAt||0))/1000;return t<.9?.3+.7*Math.abs(Math.sin(t*Math.PI/.45)):.45}
 const FOIL_TILT=.1;
@@ -1141,7 +1138,7 @@ function balBuild(){
  const h=G.hair.front,L=h.filter(s=>s.wet[0]<0).sort((a,b)=>balMid(a)-balMid(b)),Rt=h.filter(s=>s.wet[0]>0).sort((a,b)=>balMid(b)-balMid(a));
  // six slim sections, three down each side: outermost first, each pulled out to its own foil back, the inner ones nearer the face
  const band=(a,j)=>{const i=Math.round(j*(a.length-8)/2);return a.slice(i,i+8)};   // outer, middle and inner, spread across the side so they never share hair
- const SRC=[[0,1.62],[1,1.32],[2,1.02]].flatMap(([j,tx])=>[[-1,j,tx],[1,j,tx]]);
+ const SRC=[[0,1.86],[1,1.58],[2,1.3]].flatMap(([j,tx])=>[[-1,j,tx],[1,j,tx]]);
  BL.secs=SRC.map(([side,j,tx],k)=>{const ss=band(side<0?L:Rt,j);ss.forEach(s=>{s.bsec=k;s.bx=0});
   const mx=ss.reduce((a,s)=>a+balMid(s),0)/ss.length;return{ss,side,mx,tx:side*tx,bx:0,place:0,cov:Array(8).fill(0),rcov:Array(4).fill(0)}});
  BL.k=0;BL.drag=null;BL.foil=null}
@@ -1150,24 +1147,30 @@ const balRoot=q=>q.rcov.reduce((a,c)=>a+c,0)/q.rcov.length;   // bleach painted 
 const balCov=q=>q.cov.reduce((a,c)=>a+Math.min(1,c),0)/q.cov.length;
 const balTol=()=>G.stylist&&G.stylist.foil?{miss:.32,full:.1}:{miss:.24,full:.05};   // Josie has more room to land a section
 function balStart(){Object.assign(F,{placed:[],score:0,pullScore:0});setMood('calm');balPrep(0)}
-function balPrep(k){BL.k=k;BL.drag=null;BL.foil=null;setStage('bsec',k?null:'Take a section!')}
+function balPrep(k){BL.k=k;BL.drag=null;BL.foil=null;BL.swingT=0;BL.glideT=0;BL.down=null;setStage('bsec',k?null:'Take a section!')}
+const balSwingSpeed=()=>G.stylist&&G.stylist.foil?1.7:2.1;   // Josie's sections swing a little slower
 function balDown(px,py){
- const fx=(px-hx)/U,fy=(py-hy)/U,q=BL.secs[BL.k];
- if(G.stage==='bsec'){for(const s of q.ss)for(let i=6;i<N;i+=3){pt(s,i,SP);if(Math.hypot(SP[0]-fx,SP[1]-fy)<.38){BL.drag={sx:fx,b0:q.bx};burst(1500,.04,.06,'bandpass');return}}}
- if(G.stage==='bpaint'&&balCov(q)>=BAL_READY&&Math.abs(px-hx)<.95*U&&Math.abs(py-balTrayY())<.36*U)BL.foil={drag:true}}
+ const q=BL.secs[BL.k];
+ if(G.stage==='bsec'){balPlace();return}
+ if(G.stage==='bpaint')BL.down={x:px,y:py,t:performance.now()}}
+// tap while the swinging section is over the dull foil back
 function balPlace(){
- const q=BL.secs[BL.k];BL.drag=null;if(Math.abs(q.bx)<.02)return;
- // dropped off the foil back, the section falls back to her head to try again; landed on it, it settles neatly onto the foil
- const err=Math.abs(q.mx+q.bx-q.tx);
- const tl=balTol();if(err>tl.miss){q.miss=(q.miss||0)+1;q.bx=0;q.ss.forEach(s=>s.bx=0);BL.say='Missed the foil';BL.sayT=1.2;tone(247,.12,.08);return}
+ const q=BL.secs[BL.k],err=Math.abs(q.mx+q.bx-q.tx),tl=balTol();
+ if(err>tl.miss){q.miss=(q.miss||0)+1;BL.say='Missed the foil';BL.sayT=1.2;tone(247,.12,.08);return}
  q.place=clamp(1-Math.max(0,err-tl.full)/.2-.15*(q.miss||0),0,1);q.bx=q.tx-q.mx;q.ss.forEach(s=>s.bx=q.bx);
- BL.say=q.place>=.85?'Neat section!':q.place>=.5?'A little off':'Messy section';BL.sayT=1.2;tone(q.place>=.85?988:494,.09,.08);
+ BL.say=q.place>=.85?'Neat section!':q.place>=.5?'A little off':'Messy section';BL.sayT=1.2;tone(q.place>=.85?988:494,.09,.08);burst(1500,.04,.06,'bandpass');
  setStage('bpaint',BL.k?null:'Bleach it!')}
-function balFoilDrop(){
- const q=BL.secs[BL.k],[y0,y1]=balSpan(q),X=hx+q.tx*U,Y=hy+(y0+y1)/2*U;BL.foil=null;
- if(Math.abs(Pt.x-X)>.34*U||Math.abs(Pt.y-Y)>.8*U){tone(247,.1,.07);return}
- const acc=clamp(q.place*.4+balCov(q)*.6-Math.min(.45,.6*balRoot(q)),0,1);
+const balGlideX=()=>{const q=BL.secs[BL.k];return q.tx+.62*Math.sin(BL.glideT)};
+// a quick tap (not a brush stroke) lays the gliding shiny foil
+function balTapUp(){
+ const d=BL.down;BL.down=null;if(!d||G.stage!=='bpaint')return;
+ if(Math.hypot(Pt.x-d.x,Pt.y-d.y)>14||performance.now()-d.t>350)return;
+ const q=BL.secs[BL.k];if(balCov(q)<BAL_READY){BL.say='Bleach it first';BL.sayT=1;return}
+ const gx=balGlideX(),err=Math.abs(gx-q.tx);
+ if(err>BAL_W*.9){BL.say='Missed the section';BL.sayT=1.2;tone(247,.1,.07);return}
+ const[y0,y1]=balSpan(q),acc=clamp(q.place*.4+balCov(q)*.6-Math.min(.45,.6*balRoot(q))-Math.max(0,err-.04)*2,0,1);
  F.placed.push({x:q.tx,y:(y0+y1)/2,len:y1-y0,long:1,sec:BL.k,acc,p:0,delay:0,rate:.09,done:false});burst(2600,.06,.13);tone(acc>.8?988:494,.08,.08);
+ BL.say=err<=.05?'Perfect wrap!':'Foiled';BL.sayT=1;
  if(BL.k+1<BAL_N)balPrep(BL.k+1);else balDone()}
 function balDone(){
  F.score=Math.round(F.placed.reduce((a,f)=>a+f.acc,0)/F.placed.length*100);G.stage='wait';paintSteps();up();ding();
@@ -1177,9 +1180,10 @@ function balDone(){
 function balUpdate(dt,fx,fy,moving){
  const q=BL.secs[BL.k],go=performance.now()>=(G.lock||0);if(BL.cool>0)BL.cool-=dt;if(BL.sayT>0)BL.sayT-=dt;
  if(G.stage==='bsec'){
-  if(BL.drag&&Pt.down){q.bx=clamp(BL.drag.b0+(fx-BL.drag.sx),-1,1);q.ss.forEach(s=>s.bx=q.bx)}
+  if(go)BL.swingT+=dt*balSwingSpeed();q.bx=(q.tx-q.mx)*1.35*(.5-.5*Math.cos(BL.swingT));q.ss.forEach(s=>s.bx=q.bx);   // swings out past its foil back and back again
   meter(BL.k/BAL_N,`Foil ${BL.k+1} of ${BAL_N}`,'');return}
  // painting: bleach only counts from the mid-lengths down; the roots stay clear
+ if(go&&balCov(q)>=BAL_READY)BL.glideT+=dt*1.9;
  if(Pt.down&&!BL.foil&&moving&&go){
   const hit=new Set(),rhit=new Set();
   for(const s of q.ss)for(let i=1;i<N;i++){const u=i/(N-1);if(u>s.t)break;pt(s,i,SP);if(Math.hypot(SP[0]-fx,SP[1]-fy)>.24)continue;
@@ -1188,7 +1192,7 @@ function balUpdate(dt,fx,fy,moving){
   for(const j of rhit)q.rcov[j]=Math.min(1,q.rcov[j]+dt*2.6*(G.stylist.wash||1));
   if((hit.size||rhit.size)&&Math.random()<dt*3)burst(1400,.03,.05,'bandpass');
   if(rhit.size&&BL.cool<=0){BL.cool=.9;tone(247,.12,.08);toast('Not the roots!',1)}}
- const v=balCov(q);meter(v,v>=BAL_READY?'Bleach · drag the foil on when ready':'Bleach',Math.round(v*100)+'%')}
+ const v=balCov(q);meter(v,v>=BAL_READY?'Bleach · tap to lay the foil':'Bleach',Math.round(v*100)+'%')}
 function strandRange(ctx,s,u0,u1,tEnd){
  u1=Math.min(u1,tEnd);if(u1<=u0)return;if(s.ring){ringStrand(ctx,s,u0*(N-1),u1*(N-1));return}const a=u0*(N-1),b=u1*(N-1);
  const at=f=>{const n=Math.min(N-2,Math.floor(f));pt(s,n,P0);pt(s,n+1,P1);const u=f-n;return[lerp(P0[0],P1[0],u),lerp(P0[1],P1[1],u)]};
@@ -1200,7 +1204,7 @@ function drawBal(){
  const[y0,y1]=balSpan(q);
  // the dull back of a foil, laid out beside her; the section is pulled across onto it
  // a soft green pulse while the held section is over the foil back: brighter once it would land dead center
- if(st==='bsec'&&BL.drag){const err=Math.abs(q.mx+q.bx-q.tx),tl=balTol();if(err<=tl.miss){const T=performance.now()/1000,k=err<=tl.full+.02?1:.55,a=(.36+.2*Math.sin(T*9))*k,g=.08+.05*k;
+ if(st==='bsec'){const err=Math.abs(q.mx+q.bx-q.tx),tl=balTol();if(err<=tl.miss){const T=performance.now()/1000,k=err<=tl.full+.02?1:.55,a=(.36+.2*Math.sin(T*9))*k,g=.08+.05*k;
   ctx.fillStyle=`rgba(127,216,107,${a.toFixed(2)})`;ctx.beginPath();ctx.roundRect(q.tx-BAL_W/2-g,y0-g,BAL_W+g*2,y1-y0+g*2,.05+g);ctx.fill()}}
  ctx.fillStyle='#8E959A';ctx.strokeStyle='#1B1C1E';ctx.lineWidth=.03;ctx.beginPath();ctx.roundRect(q.tx-BAL_W/2,y0,BAL_W,y1-y0,.05);ctx.fill();ctx.stroke();
  ctx.fillStyle='#7F868B';for(let y=y0+.08;y<y1-.05;y+=.16)ctx.fillRect(q.tx-BAL_W/2+.03,y,BAL_W-.06,.012);
@@ -1229,9 +1233,8 @@ function drawBalTop(){
  const st=G.stage;if(!G.c.bal)return;
  if(st==='bpaint'){
   const q=BL.secs[BL.k],ready=balCov(q)>=BAL_READY;
-  if(BL.foil&&Pt.down){const[y0,y1]=balSpan(q);longPx(Pt.x,Pt.y,BAL_W*U,(y1-y0)*U,'#eef2f4',false,.92)}
-  else{ctx.save();ctx.translate(hx,balTrayY());ctx.rotate(Math.PI/2);longPx(0,0,BAL_W*U,1.7*U,'#eef2f4',ready&&performance.now()%800<400,ready?1:.4);ctx.restore()}
-  if(Pt.down&&!BL.foil)drawBrush(Pt.x,Pt.y,'#FFFFFF')}
+  if(ready){const[y0,y1]=balSpan(q),gx=balGlideX(),on=Math.abs(gx-q.tx)<=.05;longPx(hx+gx*U,hy+(y0+y1)/2*U,BAL_W*U,(y1-y0)*U,'#eef2f4',on?1:0,.9)}   // the shiny foil glides back and forth over the section
+  if(Pt.down)drawBrush(Pt.x,Pt.y,'#FFFFFF')}
  if(BL.sayT>0&&(st==='bsec'||st==='bpaint')){ctx.globalAlpha=clamp(BL.sayT*2,0,1);ctx.font='800 20px Inter,system-ui,sans-serif';ctx.textAlign='center';ctx.lineWidth=5;ctx.strokeStyle='#17181A';ctx.strokeText(BL.say,hx,hy-1.75*U);ctx.fillStyle=BL.say==='Neat section!'?'#7FD86B':'#FFF8F4';ctx.fillText(BL.say,hx,hy-1.75*U);ctx.globalAlpha=1}}
 
 /* ---------- Rhys, the mohawk walk-in: he never stops talking, and his head leans as he does ---------- */
@@ -1860,7 +1863,7 @@ function drawRestock(){
  // the delivery crate
  ctx.fillStyle='#BE9662';ctx.fillRect(0,g.trayY,W,RS_TRAY);ctx.fillStyle='#A98352';for(let i=0;i<4;i++)ctx.fillRect(0,g.trayY+RS_TRAY*i/4+1,W,3);
  ctx.fillStyle='#1B1C1E';ctx.fillRect(0,g.trayY,W,4);
- const left=RS.queue.length,sw=W/3,z=.62,tw=g.cw*z,th=bh*z;
+ const left=RS.queue.length,sw=W/3,z=Math.min(1,(sw-8)/(3*g.cw),(RS_TRAY-34)/bh),tw=g.cw*z,th=bh*z;   // the waiting boxes match the shelf size
  RS.slots.forEach((b,i)=>{if(!b||(RS.drag&&RS.drag.i===i&&!b))return;const x=i*sw+(sw-b.len*tw)/2,y=g.trayY+(RS_TRAY-th)/2+4;
   ctx.fillStyle='#00000030';ctx.fillRect(x+3,y+5,b.len*tw,th);for(let k=0;k<b.len;k++)ctx.drawImage(rsSprite(b.f,g.cw,bh),x+k*tw,y,tw,th)});
  if(left){ctx.font='800 14px Inter,system-ui,sans-serif';ctx.textAlign='right';ctx.fillStyle='#1B1C1E';ctx.fillText(`+${left} more`,W-10,g.trayY+22)}
