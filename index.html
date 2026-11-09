@@ -2266,8 +2266,8 @@ const LB={url:'https://ihayvqtxymaofaeykdas.supabase.co',key:'sb_publishable_5qc
 const lbHead=(more)=>({apikey:LB.key,...(LB.key.startsWith('eyJ')?{Authorization:'Bearer '+LB.key}:{}),...more});
 const lbLive=()=>!!(LB.url&&LB.key);
 async function lbGet(){
- if(!lbLive()){try{return JSON.parse(store.get('cc-lb')||'[]').sort((a,b)=>b.tips-a.tips).slice(0,20)}catch(e){return[]}}
- const r=await fetch(LB.url+'/rest/v1/scores?select=id,first,last,tips,rating,stylists&order=tips.desc,created_at.asc&limit=20',{headers:lbHead({})});
+ if(!lbLive()){try{return JSON.parse(store.get('cc-lb')||'[]').sort((a,b)=>b.tips-a.tips||b.rating-a.rating).slice(0,20)}catch(e){return[]}}
+ const r=await fetch(LB.url+'/rest/v1/scores?select=id,first,last,tips,rating,stylists&order=tips.desc,rating.desc,created_at.asc&limit=20',{headers:lbHead({})});
  if(!r.ok)throw new Error(r.status);return r.json()}
 async function lbPost(row){
  if(!lbLive()){const a=JSON.parse(store.get('cc-lb')||'[]'),id=Date.now();a.push({...row,id});store.set('cc-lb',JSON.stringify(a));return id}
