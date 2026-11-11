@@ -182,6 +182,7 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .lb{background:var(--paper);border-radius:22px;padding:18px 14px 14px;width:100%;max-width:420px;max-height:100%;display:flex;flex-direction:column;gap:8px;min-height:0;box-shadow:0 5px 0 var(--ink)}
 .lb h2{margin:0;text-align:center;font-family:var(--display);font-weight:700;font-size:28px;text-transform:uppercase;letter-spacing:.06em}
 .lb-sub{margin:0;text-align:center;font-size:13px;font-weight:700;color:#1B1C1E99}
+.lb-count{margin:0;flex:none;text-align:center;font-size:13px;font-weight:700;color:#1B1C1E99}
 #lb-list{list-style:none;margin:0;padding:2px 2px 4px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;display:flex;flex-direction:column;gap:6px;flex:1 1 auto;min-height:120px}   /* scrolls inside the panel */
 #lb-list>li{flex:none}
 #lb-list li{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:8px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:7px 10px}
@@ -344,7 +345,7 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
   <div id="load"><img id="load-img" alt="Cutting It Close is loading"></div>
   <section id="front" hidden><canvas id="front-cv"></canvas><div class="fr-btns"><button class="go" id="fr-continue" hidden>CONTINUE</button><button class="go" id="fr-play">PLAY</button><div class="fr-row"><button id="fr-board">LEADERBOARD</button><button id="fr-share" aria-label="Share the game"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M8 10H6.5A1.5 1.5 0 0 0 5 11.5v8A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5H16"/></svg></button><button id="fr-about" aria-label="About and privacy"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.4" r=".6" fill="currentColor"/></svg></button></div><a id="fr-book" href="https://www.nogginsorganicsalon.com/request-appointment" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>BOOK AN APPOINTMENT AT NOGGINS</a><p id="fr-copied" hidden>Link copied!</p></div></section>
   <section id="about" hidden><div class="lb ab"><h2>About</h2><div class="ab-body"><p><b>Cutting It Close</b> is a free game made by Gareth, who you might just find behind the chair at <b>Noggins Organic Salon</b>. It is just for fun: real color, bleach and cutting shears belong in a professional&rsquo;s hands, so please don&rsquo;t try these at home!</p><h3>Weekly prize rules</h3><p>No purchase necessary. The highest leaderboard tip total at 11:59pm Friday (Central Time) wins that Saturday. One win per person. Winners under 18 need a parent or guardian to collect. Noggins reserves the right to disqualify suspicious scores. Not sponsored by Instagram or Aveda.</p><h3>The team</h3><p>Featuring the Noggins stylists Kez, Tamarah, Amy, Josie, Gareth, Jess, Lily and Jade.</p><h3>The clients</h3><p>Every client in the game is fictional. Any resemblance to real people is coincidental.</p></div><button class="go" id="ab-close">Back</button></div></section>
-  <section id="board" hidden><div class="lb"><h2>Leaderboard</h2><p class="lb-sub">Top five-day totals at Noggins</p><ol id="lb-list"></ol><button class="go" id="lb-close">Back</button></div></section>
+  <section id="board" hidden><div class="lb"><h2>Leaderboard</h2><p class="lb-sub">Top five-day totals at Noggins</p><ol id="lb-list"></ol><p class="lb-count" id="lb-count" hidden></p><button class="go" id="lb-close">Back</button></div></section>
   <section id="pick" class="screen">
     <h1 class="logo"><img id="title" alt="Cutting It Close"></h1>
     <p class="sub">Pick your Noggins stylist</p>
@@ -2291,7 +2292,16 @@ const escH=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;
 // The board opens straight away on the scores it last saw, then quietly updates; "Loading" only shows if the wait is noticeable
 let LB_ROWS=null;
 const lbMsg=t=>`<li class="lb-msg" style="display:block;border:0;background:none">${t}</li>`;
-function lbPrefetch(){lbGet().then(r=>{LB_ROWS=r}).catch(()=>{})}
+// How busy the week has been: a tiny public summary view (board_counts) holds just two numbers. No view yet: the line stays hidden.
+let LB_COUNTS=null;
+async function lbCounts(){
+ if(!lbLive())return null;
+ const r=await fetch(LB.url+'/rest/v1/board_counts?select=players,finished',{headers:lbHead({})});
+ if(!r.ok)return null;const j=await r.json(),c=j&&j[0];
+ return c&&Number.isFinite(+c.players)&&Number.isFinite(+c.finished)?{players:+c.players,finished:+c.finished}:null}
+function paintCounts(c){const e=$('lb-count');if(!c||c.players<1){e.hidden=true;return}
+ e.textContent=`${c.players} ${c.players===1?'player':'players'} this week · ${c.finished} finished all five days`;e.hidden=false}
+function lbPrefetch(){lbGet().then(r=>{LB_ROWS=r}).catch(()=>{});lbCounts().then(c=>{LB_COUNTS=c}).catch(()=>{})}
 async function showBoard(me){
  const L=$('lb-list');$('board').hidden=false;
  const sty=id=>{const s=STYLISTS.find(x=>x.id===id);return s?`<img alt="${s.name}" title="${s.name}" src="${URL_['stylist_'+s.id]}">`:''};
@@ -2299,6 +2309,7 @@ async function showBoard(me){
   L.innerHTML=rows.map((r,i)=>`<li class="${r.id===me?'me':''}"><span class="rk">${i+1}</span><div style="min-width:0"><div class="nm">${escH(r.first)} ${escH(String(r.last||'').slice(0,1))}.</div><div class="sty" aria-label="Stylists by day">${(r.stylists||[]).map(sty).join('')}</div></div><div class="sc"><span class="tp">$${Number(r.tips)|0}</span><span class="st"><b>&#9733;</b> ${Number(r.rating).toFixed(1)}</span></div></li>`).join('');
   const m=L.querySelector('.me');if(m)m.scrollIntoView({block:'center'})};
  if(LB_ROWS&&me==null)paint(LB_ROWS);else L.innerHTML='';
+ paintCounts(LB_COUNTS);lbCounts().then(c=>{LB_COUNTS=c;paintCounts(c)}).catch(()=>{});
  const slow=setTimeout(()=>{if(!L.children.length)L.innerHTML=lbMsg('Loading the board...')},600);
  try{LB_ROWS=await lbGet();clearTimeout(slow);paint(LB_ROWS)}catch(e){clearTimeout(slow);if(!LB_ROWS)L.innerHTML=lbMsg('Could not load the leaderboard. Check your connection.')}}
 
