@@ -1338,7 +1338,7 @@ function drawCurlIron(){
   const Y=hy+U*1.3,w=ctx.measureText(CI.say).width+U*.5,h=U*.42;ctx.fillStyle=CI.say==='Snapped!'?'#C8302A':CI.say==='Perfect curl!'?'#3D8F2C':'#F1EDE6';ctx.strokeStyle='#1B1C1E';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(hx-w/2,Y-h/2,w,h,h/2);ctx.fill();ctx.stroke();
   ctx.fillStyle=CI.say==='Snapped!'||CI.say==='Perfect curl!'?'#fff':'#1B1C1E';ctx.fillText(CI.say,hx,Y+1);ctx.restore()}
  if(!q||!CI.hold)return;
- const[cx,cy]=curlClamp(q),[ex,ey]=curlEnd(q),X=hx+cx*U,Y=hy+cy*U,len=Math.max(U*.7,Math.hypot(ex-cx,ey-cy)*U*.85),ang=Math.atan2(ex-cx,ey-cy);
+ const[cx,cy]=curlClamp(q),[ex,ey]=curlEnd(q),X=hx+cx*U,Y=hy+cy*U,len=Math.max(U*.82,Math.hypot(ex-cx,ey-cy)*U)   /* a slightly longer barrel */,ang=Math.atan2(ex-cx,ey-cy);
  const p=CI.heat,col=curlColor(p),r=U*.085;
  ctx.save();ctx.translate(X,Y);ctx.rotate(-ang);ctx.lineJoin='round';ctx.strokeStyle='#1B1C1E';ctx.lineWidth=2.5;
  // a glow round the barrel once it is hot
